@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welfare Business Network | Conectando Comunidad</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        welfare: {
+                            blue: '#0F4C81',   /* Azul Institucional (Captura) */
+                            dark: '#0a355c',   /* Azul Oscuro para contraste */
+                            cyan: '#29B6D8',   /* Cyan de las olas (Captura) */
+                            yellow: '#F3E136', /* Amarillo del Foco (Captura) */
+                            white: '#FFFFFF',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'tilt': 'tilt 10s infinite linear',
+                        'marquee': 'marquee 25s linear infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        tilt: {
+                            '0%, 50%, 100%': { transform: 'rotate(0deg)' },
+                            '25%': { transform: 'rotate(1deg)' },
+                            '75%': { transform: 'rotate(-1deg)' },
+                        },
+                        marquee: {
+                            '0%': { transform: 'translateX(0%)' },
+                            '100%': { transform: 'translateX(-100%)' },
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+                        'glow-yellow': '0 0 20px rgba(243, 225, 54, 0.6)',
+                        'glow-cyan': '0 0 20px rgba(41, 182, 216, 0.4)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos base para el scrollbar y efectos maximalistas */
+        body {
+            background-color: #0F4C81;
+            overflow-x: hidden;
+        }
+        
+        /* Efecto Vidrio Grueso (Thick Glass) */
+        .thick-glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        /* Texto con borde (Outline) para maximalismo */
+        .text-outline {
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+            color: transparent;
+        }
+
+        /* Patrón de fondo sutil */
+        .bg-pattern {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        /* Ocultar scrollbar en elementos horizontales */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="text-white selection:bg-welfare-yellow selection:text-welfare-blue">
+
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-welfare-blue">
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-welfare-cyan rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob"></div>
+        <div class="absolute top-0 right-1/4 w-96 h-96 bg-welfare-yellow rounded-full mix-blend-screen filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-32 left-1/3 w-96 h-96 bg-welfare-cyan rounded-full mix-blend-screen filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div class="absolute inset-0 bg-pattern opacity-20"></div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-50 px-6 py-4 transition-all duration-300">
+        <div class="max-w-7xl mx-auto thick-glass rounded-full px-6 py-3 flex justify-between items-center">
+            <div class="flex items-center gap-2">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 22H22L12 2Z" fill="#F3E136" stroke="white" stroke-width="2"/>
+                </svg>
+                <span class="font-display font-bold text-xl tracking-tight">WELFARE<span class="text-welfare-cyan">NETWORK</span></span>
+            </div>
+            <div class="hidden md:flex gap-8 font-medium text-sm text-gray-200">
+                <a href="#directorio" class="hover:text-welfare-yellow transition-colors">Directorio</a>
+                <a href="#proceso" class="hover:text-welfare-yellow transition-colors">Cómo Funciona</a>
+            </div>
+            <a href="/login" class="bg-white/10 hover:bg-white/20 px-5 py-2 rounded-full text-sm font-bold border border-white/20 transition-all">
+                Acceso Familias
+            </a>
+        </div>
+    </nav>
+
+    <header class="relative pt-40 pb-20 px-6 min-h-screen flex flex-col justify-center">
+        <div class="max-w-7xl mx-auto w-full text-center md:text-left">
+            
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-welfare-cyan/50 bg-welfare-cyan/10 text-welfare-cyan font-bold text-xs mb-8 animate-pulse">
+                <span class="w-2 h-2 rounded-full bg-welfare-cyan"></span>
+                COMUNIDAD ACTIVA 2025
+            </div>
+
+            <h1 class="font-display font-bold text-6xl md:text-8xl leading-[0.9] tracking-tighter mb-8">
+                TU ESCUELA.<br>
+                <span class="text-welfare-cyan">TU NEGOCIO.</span><br>
+                <span class="text-outline">TU RED.</span>
+            </h1>
+
+            <p class="text-xl md:text-2xl text-blue-100 max-w-2xl mb-12 font-light">
+                La plataforma exclusiva para conectar con las empresas y servicios de las familias Welfare.
+            </p>
+
+            <div class="flex flex-col md:flex-row gap-6">
+                <a href="/registro" class="group relative px-8 py-6 bg-welfare-yellow rounded-2xl overflow-hidden flex-1 max-w-md shadow-glow-yellow transition-transform hover:-translate-y-2">
+                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    <div class="relative flex justify-between items-center text-welfare-blue">
+                        <span class="font-display font-bold text-2xl">REGISTRAR MI NEGOCIO</span>
+                        <svg class="w-8 h-8 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </div>
+                </a>
+
+                <a href="/directorio" class="group relative px-8 py-6 bg-welfare-dark border border-welfare-cyan/30 rounded-2xl overflow-hidden flex-1 max-w-md transition-transform hover:-translate-y-2">
+                    <div class="relative flex justify-between items-center text-white">
+                        <span class="font-display font-bold text-2xl text-welfare-cyan">EXPLORAR DIRECTORIO</span>
+                        <svg class="w-8 h-8 text-welfare-cyan transform group-hover:rotate-45 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none">
+            <svg class="relative block w-[200%] h-[150px] md:h-[250px] animate-pulse" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="fill-welfare-cyan opacity-80"></path>
+            </svg>
+        </div>
+    </header>
+
+    <div class="bg-welfare-cyan py-4 overflow-hidden border-y border-white/20 relative z-10">
+        <div class="whitespace-nowrap animate-marquee flex gap-12 text-welfare-blue font-display font-bold text-2xl uppercase tracking-widest">
+            <span>• Arquitectura Viva</span>
+            <span>• Clínica Dental Sonrisas</span>
+            <span>• Lex Abogados</span>
+            <span>• Catering Del Valle</span>
+            <span>• Tech Solutions</span>
+            <span>• Agencia Marketing Aura</span>
+            <span>• Arquitectura Viva</span>
+            <span>• Clínica Dental Sonrisas</span>
+            <span>• Lex Abogados</span>
+            <span>• Catering Del Valle</span>
+        </div>
+    </div>
+
+    <section id="proceso" class="py-24 px-6 relative">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="font-display font-bold text-4xl md:text-6xl text-center mb-20">
+                POTENCIADO POR <span class="text-welfare-yellow">INTELIGENCIA</span>
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-12 relative">
+                <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-welfare-cyan to-transparent opacity-50 -translate-y-1/2"></div>
+
+                <div class="relative z-10 thick-glass p-8 rounded-3xl text-center group hover:border-welfare-yellow transition-colors">
+                    <div class="w-20 h-20 mx-auto bg-welfare-blue rounded-2xl border-2 border-welfare-cyan flex items-center justify-center mb-6 shadow-glow-cyan transform group-hover:rotate-12 transition-transform">
+                        <div class="w-8 h-8 bg-welfare-cyan"></div>
+                    </div>
+                    <h3 class="font-display font-bold text-2xl mb-2">1. DATOS</h3>
+                    <p class="text-sm text-gray-300">Ingresa la info básica de tu negocio y familia.</p>
+                </div>
+
+                <div class="relative z-10 thick-glass p-8 rounded-3xl text-center group hover:border-welfare-yellow transition-colors">
+                    <div class="w-20 h-20 mx-auto bg-welfare-blue rounded-full border-2 border-welfare-yellow flex items-center justify-center mb-6 shadow-glow-yellow transform group-hover:scale-110 transition-transform">
+                         <div class="w-8 h-8 rounded-full border-4 border-welfare-yellow border-t-transparent animate-spin"></div>
+                    </div>
+                    <h3 class="font-display font-bold text-2xl mb-2 text-welfare-yellow">2. PROCESAMIENTO</h3>
+                    <p class="text-sm text-gray-300">Nuestra IA analiza tu web y crea el perfil.</p>
+                </div>
+
+                <div class="relative z-10 thick-glass p-8 rounded-3xl text-center group hover:border-welfare-yellow transition-colors">
+                    <div class="w-20 h-20 mx-auto bg-welfare-blue rounded-2xl border-2 border-welfare-cyan flex items-center justify-center mb-6 shadow-glow-cyan transform group-hover:-rotate-12 transition-transform">
+                        <div class="w-0 h-0 border-l-[15px] border-l-transparent border-r-[15px] border-r-transparent border-b-[26px] border-b-welfare-cyan"></div>
+                    </div>
+                    <h3 class="font-display font-bold text-2xl mb-2">3. VISIBILIDAD</h3>
+                    <p class="text-sm text-gray-300">Validación y publicación inmediata en la red.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="directorio" class="py-20 px-6 bg-welfare-dark/50">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex justify-between items-end mb-12">
+                <h2 class="font-display font-bold text-5xl">CATEGORÍAS</h2>
+                <a href="#" class="text-welfare-cyan font-bold hover:text-white transition-colors">VER TODO -></a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[300px]">
+                
+                <div class="lg:col-span-2 thick-glass rounded-3xl p-8 relative overflow-hidden group cursor-pointer hover:border-welfare-cyan transition-all">
+                    <div class="absolute -right-10 -top-10 w-64 h-64 bg-welfare-cyan/20 rounded-full blur-3xl group-hover:bg-welfare-cyan/30 transition-all"></div>
+                    <h3 class="font-display font-bold text-4xl mt-auto absolute bottom-8 left-8">SALUD Y<br>BIENESTAR</h3>
+                    <div class="absolute top-8 right-8 border border-white/30 rounded-full px-4 py-1 text-xs font-bold">12 EMPRESAS</div>
+                </div>
+
+                <div class="thick-glass rounded-3xl p-8 relative overflow-hidden group cursor-pointer hover:border-welfare-yellow transition-all">
+                    <div class="absolute -right-5 -bottom-5 w-32 h-32 bg-welfare-yellow/20 rounded-full blur-2xl group-hover:bg-welfare-yellow/30 transition-all"></div>
+                    <h3 class="font-display font-bold text-3xl mt-auto absolute bottom-8 left-8">LEGAL</h3>
+                </div>
+
+                <div class="thick-glass rounded-3xl p-8 relative overflow-hidden group cursor-pointer hover:border-welfare-cyan transition-all">
+                    <h3 class="font-display font-bold text-3xl mt-auto absolute bottom-8 left-8">COMIDA</h3>
+                </div>
+
+                 <div class="lg:col-span-2 thick-glass rounded-3xl p-8 relative overflow-hidden group cursor-pointer hover:border-welfare-cyan transition-all">
+                     <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-gradient-to-r from-welfare-blue to-transparent opacity-50"></div>
+                    <h3 class="font-display font-bold text-4xl mt-auto absolute bottom-8 left-8">SERVICIOS<br>CREATIVOS</h3>
+                </div>
+                 <div class="lg:col-span-2 thick-glass rounded-3xl p-8 relative overflow-hidden group cursor-pointer hover:border-welfare-yellow transition-all">
+                    <h3 class="font-display font-bold text-4xl mt-auto absolute bottom-8 left-8 text-welfare-yellow">CONSTRUCCIÓN</h3>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-12 border-t border-white/10 text-center bg-welfare-blue">
+        <p class="font-display font-bold text-2xl mb-4">WELFARE FAMILY NETWORK</p>
+        <p class="text-sm text-white/50">&copy; 2025 Welfare School. Todos los derechos reservados.</p>
+    </footer>
+
+</body>
+</html>

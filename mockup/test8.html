@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welfare Business Directory | Sidebar Layout</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- VARIABLES --- */
+        :root {
+            --navy-primary: #0f172a;
+            --cyan-accent: #06b6d4;
+            --yellow-pop: #facc15;
+            
+            --bg-page: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-light: #e2e8f0;
+            
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid var(--border-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .nav-content { display: flex; justify-content: space-between; align-items: center; }
+        
+        .brand { font-weight: 800; font-size: 1.5rem; color: var(--navy-primary); display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .brand span { color: var(--cyan-accent); }
+        
+        .btn-primary {
+            background: var(--navy-primary); color: white; text-decoration: none; font-weight: 600; padding: 10px 24px; border-radius: 8px; transition: all 0.2s;
+        }
+        .btn-primary:hover { background: #1e293b; transform: translateY(-1px); }
+
+        /* --- MAIN LAYOUT (SIDEBAR + GRID) --- */
+        .layout-wrapper {
+            display: flex;
+            gap: 40px;
+            padding: 40px 0 80px;
+            align-items: flex-start; /* Important for sticky sidebar */
+        }
+
+        /* --- SIDEBAR STYLES --- */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-card);
+            position: sticky;
+            top: 100px; /* Offset for navbar */
+            height: fit-content;
+        }
+
+        .sidebar h3 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 16px; font-weight: 700; }
+
+        .search-box { position: relative; margin-bottom: 32px; }
+        .search-input {
+            width: 100%; padding: 12px 12px 12px 40px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 0.95rem; outline: none; transition: all 0.2s;
+        }
+        .search-input:focus { border-color: var(--cyan-accent); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1); }
+        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* Filter Options */
+        .filter-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+        
+        .filter-item {
+            display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: all 0.2s; color: var(--text-main); font-weight: 500;
+        }
+
+        .filter-item:hover { background: #f1f5f9; }
+
+        /* Radio Button styling as "dots" */
+        .filter-radio {
+            appearance: none; width: 16px; height: 16px; border: 2px solid var(--border-light); border-radius: 50%; position: relative; transition: all 0.2s;
+        }
+        .filter-radio:checked { border-color: var(--cyan-accent); }
+        .filter-radio:checked::after {
+            content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background: var(--cyan-accent); border-radius: 50%;
+        }
+
+        /* Active state for row */
+        .filter-item:has(.filter-radio:checked) { background: #ecfeff; color: var(--navy-primary); font-weight: 600; }
+
+        .divider { height: 1px; background: var(--border-light); margin: 24px 0; }
+
+        /* --- CONTENT GRID --- */
+        .content-area { flex: 1; }
+
+        .page-header { margin-bottom: 32px; }
+        .page-header h1 { font-size: 2rem; color: var(--navy-primary); font-weight: 800; margin-bottom: 8px; }
+        .page-header p { color: var(--text-muted); }
+
+        .business-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;
+        }
+
+        /* --- CARD STYLES --- */
+        .business-card {
+            background: white; border: 1px solid var(--border-light); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden;
+        }
+
+        .business-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: var(--cyan-accent); }
+
+        .card-top-accent { position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: linear-gradient(to right, var(--navy-primary), var(--cyan-accent)); opacity: 0; transition: opacity 0.3s; }
+        .business-card:hover .card-top-accent { opacity: 1; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px; }
+        
+        .logo-box { width: 50px; height: 50px; background: #f8fafc; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: var(--navy-primary); }
+        
+        .family-badge { background: #f0f9ff; color: var(--navy-primary); font-size: 0.7rem; font-weight: 700; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; border: 1px solid #e0f2fe; }
+
+        .company-name { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+        .company-desc { font-size: 0.9rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 24px; flex-grow: 1; }
+
+        .btn-view {
+            margin-top: auto; padding: 10px; text-align: center; border: 1px solid var(--border-light); border-radius: 8px; color: var(--text-main); font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.2s;
+        }
+        .btn-view:hover { background: var(--navy-primary); color: white; border-color: var(--navy-primary); }
+
+        /* Mobile Responsive */
+        @media (max-width: 900px) {
+            .layout-wrapper { flex-direction: column; }
+            .sidebar { width: 100%; position: static; margin-bottom: 24px; }
+            .filter-list { flex-direction: row; flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="#" class="brand">
+                Welfare<span>Network</span>
+            </a>
+            <a href="#" class="btn-primary">Registrar mi Empresa</a>
+        </div>
+    </nav>
+
+    <div class="container layout-wrapper">
+        
+        <aside class="sidebar">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" class="search-input" placeholder="Buscar..." id="searchInput">
+            </div>
+
+            <div class="divider"></div>
+
+            <h3>Categorías</h3>
+            <div class="filter-list">
+                <label class="filter-item">
+                    <input type="radio" name="category" value="all" class="filter-radio" checked onchange="filterGrid()">
+                    Ver Todo
+                </label>
+                <label class="filter-item">
+                    <input type="radio" name="category" value="salud" class="filter-radio" onchange="filterGrid()">
+                    Salud & Bienestar
+                </label>
+                <label class="filter-item">
+                    <input type="radio" name="category" value="legal" class="filter-radio" onchange="filterGrid()">
+                    Legal & Finanzas
+                </label>
+                <label class="filter-item">
+                    <input type="radio" name="category" value="gastronomia" class="filter-radio" onchange="filterGrid()">
+                    Gastronomía
+                </label>
+                <label class="filter-item">
+                    <input type="radio" name="category" value="arquitectura" class="filter-radio" onchange="filterGrid()">
+                    Arquitectura
+                </label>
+            </div>
+
+            <div class="divider"></div>
+
+            <h3>Ordenar Por</h3>
+            <div class="filter-list">
+                <label class="filter-item">
+                    <input type="radio" name="sort" class="filter-radio" checked>
+                    Más Recientes
+                </label>
+                <label class="filter-item">
+                    <input type="radio" name="sort" class="filter-radio">
+                    Alfabético (A-Z)
+                </label>
+            </div>
+        </aside>
+
+        <main class="content-area">
+            
+            <header class="page-header">
+                <h1>Directorio de Familias</h1>
+                <p>Explora 120 negocios confiables de nuestra comunidad.</p>
+            </header>
+
+            <div class="business-grid" id="grid">
+                
+                <article class="business-card" data-category="arquitectura">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="logo-box">🏗️</div>
+                        <span class="family-badge">Fam. García</span>
+                    </div>
+                    <h3 class="company-name">García Arquitectos</h3>
+                    <p class="company-desc">Diseño residencial sustentable y remodelaciones en zona sur.</p>
+                    <a href="#" class="btn-view">Ver Perfil</a>
+                </article>
+
+                <article class="business-card" data-category="salud">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="logo-box">🦷</div>
+                        <span class="family-badge">Fam. Treviño</span>
+                    </div>
+                    <h3 class="company-name">Dental Care Plus</h3>
+                    <p class="company-desc">Clínica de odontopediatría y ortodoncia con descuentos escolares.</p>
+                    <a href="#" class="btn-view">Ver Perfil</a>
+                </article>
+
+                <article class="business-card" data-category="gastronomia">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="logo-box">🥐</div>
+                        <span class="family-badge">Fam. Lopez</span>
+                    </div>
+                    <h3 class="company-name">La Panetteria</h3>
+                    <p class="company-desc">Panadería artesanal y catering para eventos sociales.</p>
+                    <a href="#" class="btn-view">Ver Perfil</a>
+                </article>
+
+                <article class="business-card" data-category="legal">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="logo-box">⚖️</div>
+                        <span class="family-badge">Fam. Méndez</span>
+                    </div>
+                    <h3 class="company-name">Méndez Legal</h3>
+                    <p class="company-desc">Asesoría jurídica corporativa y propiedad intelectual.</p>
+                    <a href="#" class="btn-view">Ver Perfil</a>
+                </article>
+
+                <article class="business-card" data-category="salud">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="logo-box">🧘‍♀️</div>
+                        <span class="family-badge">Fam. Cantú</span>
+                    </div>
+                    <h3 class="company-name">Wellness Studio</h3>
+                    <p class="company-desc">Clases de Yoga y Pilates enfocadas en bienestar integral.</p>
+                    <a href="#" class="btn-view">Ver Perfil</a>
+                </article>
+
+                <article class="business-card" data-category="arquitectura">
+                    <div class="card-top-accent"></div>
+                    <div class="card-header">
+                        <div class="logo-box">🏡</div>
+                        <span class="family-badge">Fam. Ruiz</span>
+                    </div>
+                    <h3 class="company-name">Ruiz Bienes Raíces</h3>
+                    <p class="company-desc">Venta y renta de propiedades residenciales exclusivas.</p>
+                    <a href="#" class="btn-view">Ver Perfil</a>
+                </article>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function filterGrid() {
+            // Get selected radio value
+            const selectedCategory = document.querySelector('input[name="category"]:checked').value;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.business-card');
+
+            cards.forEach(card => {
+                const cardCat = card.getAttribute('data-category');
+                const text = card.innerText.toLowerCase();
+
+                const matchCat = selectedCategory === 'all' || cardCat === selectedCategory;
+                const matchSearch = text.includes(searchTerm);
+
+                if (matchCat && matchSearch) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Live search listener
+        document.getElementById('searchInput').addEventListener('keyup', filterGrid);
+    </script>
+</body>
+</html>

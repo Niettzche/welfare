@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welfare Business Network | Directorio Familiar</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- KINETIC THEME VARIABLES --- */
+        :root {
+            --bg-deep: #0f172a; /* Welfare Navy */
+            --bg-mesh: #1e293b;
+            --accent-cyan: #06b6d4;
+            --accent-cyan-glow: #22d3ee;
+            --accent-yellow: #facc15; /* Welfare Electric Yellow */
+            --accent-yellow-hot: #fde047;
+            
+            --glass-surface: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            
+            --text-white: #ffffff;
+            --text-dim: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-white);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- ANIMATED MESH BACKGROUND --- */
+        .kinetic-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%);
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            mix-blend-mode: screen;
+            animation: drift 20s infinite ease-in-out alternate;
+        }
+
+        .orb-1 {
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, var(--accent-cyan-glow) 0%, transparent 70%);
+            top: -20%; left: -10%;
+            animation-duration: 25s;
+        }
+
+        .orb-2 {
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
+            bottom: -10%; right: -10%;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 30vw; height: 30vw;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
+            top: 40%; right: 20%;
+            animation-delay: -10s;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, -50px) scale(1.1); }
+            100% { transform: translate(-20px, 20px) scale(0.9); }
+        }
+
+        /* --- GLASSMORPHISM UTILITIES --- */
+        .glass {
+            background: var(--glass-surface);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glass-hover {
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .glass-hover:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.15);
+            transform: translateY(-5px);
+        }
+
+        /* --- FLOATING NAVBAR --- */
+        .navbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1200px;
+            padding: 12px 24px;
+            border-radius: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            top: 10px;
+            width: 95%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo span { color: var(--accent-yellow); }
+
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .btn-yellow {
+            background: var(--accent-yellow);
+            color: var(--bg-deep);
+            padding: 10px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        .btn-yellow:hover {
+            background: var(--accent-yellow-hot);
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            height: 100vh;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4rem;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            background: linear-gradient(to right, #fff, #cbd5e1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            max-width: 900px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        /* The "Energy Field" Search */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .search-bar {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(6, 182, 212, 0.3);
+            border-radius: 20px;
+            padding: 24px 32px;
+            font-size: 1.25rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 rgba(6, 182, 212, 0);
+        }
+
+        .search-bar:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 40px rgba(6, 182, 212, 0.2), inset 0 0 20px rgba(6, 182, 212, 0.1);
+            background: rgba(15, 23, 42, 0.9);
+        }
+
+        .ai-badge {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(6, 182, 212, 0.1);
+            padding: 8px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            color: var(--accent-cyan);
+            font-size: 0.9rem;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .ai-pulse {
+            width: 8px; height: 8px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent-cyan);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+            100% { opacity: 0.5; transform: scale(1); }
+        }
+
+        /* --- MAGNETIC FILTERS --- */
+        .filters-section {
+            padding: 0 0 40px 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .filter-glass-strip {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--glass-surface);
+            backdrop-filter: blur(12px);
+            border-radius: 100px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .filter-pill {
+            padding: 10px 24px;
+            border-radius: 50px;
+            border: 1px solid transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            background: transparent;
+        }
+
+        .filter-pill:hover {
+            color: white;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .filter-pill.active {
+            color: var(--bg-deep);
+            background: var(--accent-cyan);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+            font-weight: 700;
+        }
+
+        /* --- BENTO GRID --- */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            padding-bottom: 120px;
+        }
+
+        .card {
+            border-radius: 24px;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 320px;
+            position: relative;
+            overflow: hidden;
+            opacity: 0; /* For animation */
+            transform: translateY(30px);
+        }
+
+        /* Card Content */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+        }
+
+        .card-logo {
+            width: 60px; height: 60px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: var(--bg-deep);
+        }
+
+        .family-tag {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent-cyan);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            margin-bottom: 12px;
+            color: white;
+        }
+
+        .card p {
+            color: var(--text-dim);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .card-btn {
+            margin-top: auto;
+            width: 100%;
+            padding: 16px;
+            border-radius: 12px;
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .card:hover .card-btn {
+            background: white;
+            color: var(--bg-deep);
+            border-color: white;
+        }
+
+        /* --- SPOTLIGHT CAROUSEL --- */
+        .spotlight {
+            margin-bottom: 80px;
+        }
+        
+        .spotlight h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .spotlight h2::before {
+            content: ''; display: block; width: 4px; height: 32px; background: var(--accent-yellow);
+        }
+
+        /* --- CTA FOOTER --- */
+        .cta-footer {
+            background: linear-gradient(135deg, var(--accent-yellow) 0%, #f59e0b 100%);
+            padding: 100px 24px;
+            text-align: center;
+            color: var(--bg-deep);
+            position: relative;
+            clip-path: polygon(0 10%, 100% 0, 100% 100%, 0 100%);
+        }
+
+        .cta-footer h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 24px;
+            line-height: 1;
+        }
+
+        .cta-footer p {
+            font-size: 1.25rem;
+            font-weight: 600;
+            max-width: 600px;
+            margin: 0 auto 40px;
+            opacity: 0.8;
+        }
+
+        .btn-register {
+            display: inline-block;
+            background: var(--bg-deep);
+            color: white;
+            padding: 20px 48px;
+            border-radius: 100px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.3s;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.3);
+        }
+
+        .btn-register:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: white;
+            color: var(--bg-deep);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .grid-layout { grid-template-columns: 1fr; }
+            .navbar { width: 95%; top: 10px; }
+            .nav-actions { display: none; } /* Hide secondary actions on mobile */
+            .cta-footer h2 { font-size: 2.5rem; }
+            .filter-glass-strip { overflow-x: auto; max-width: 100%; justify-content: flex-start; }
+        }
+
+        /* Animation Keyframes */
+        .fade-up { animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="kinetic-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+
+    <nav class="navbar glass" id="navbar">
+        <div class="logo">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17L12 22L22 17" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 12L12 17L22 12" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Welfare<span>Net</span>
+        </div>
+        <div class="nav-actions">
+            <a href="#" style="color: white; text-decoration: none; font-weight: 500;">Directorio</a>
+            <a href="#" style="color: white; text-decoration: none; font-weight: 500;">Comunidad</a>
+            <a href="#" class="btn-yellow">Acceso Familias</a>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <h1>Conecta con la Fuerza<br>de la <span style="color: var(--accent-cyan);">Familia Welfare</span></h1>
+        <p>Un ecosistema exclusivo de negocios confiables, impulsado por nuestra comunidad escolar.</p>
+        
+        <div class="search-container">
+            <input type="text" class="search-bar" placeholder="Describe lo que necesitas..." id="aiInput">
+            <div class="ai-badge">
+                <div class="ai-pulse"></div>
+                AI Concierge
+            </div>
+        </div>
+    </header>
+
+    <section class="filters-section">
+        <div class="filter-glass-strip">
+            <button class="filter-pill active" onclick="filterBy('all', this)">Todo</button>
+            <button class="filter-pill" onclick="filterBy('health', this)">Salud & Bienestar</button>
+            <button class="filter-pill" onclick="filterBy('legal', this)">Legal & Finanzas</button>
+            <button class="filter-pill" onclick="filterBy('creative', this)">Creativo & Tech</button>
+            <button class="filter-pill" onclick="filterBy('food', this)">Gastronomía</button>
+        </div>
+    </section>
+
+    <main class="container">
+        
+        <div class="spotlight">
+            <h2>Destacados de la Semana</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+                <article class="glass glass-hover card" style="border-color: var(--accent-yellow);">
+                    <div class="card-top">
+                        <div class="card-logo" style="background: var(--accent-yellow); color: var(--bg-deep);">★</div>
+                        <span class="family-tag" style="color: var(--accent-yellow); border-color: var(--accent-yellow);">Partner Gold</span>
+                    </div>
+                    <div>
+                        <h3>Librería Central</h3>
+                        <p>Proveedores oficiales de material educativo y literatura internacional. Descuento especial del 15% para alumnos Welfare.</p>
+                        <span style="font-size: 0.9rem; color: white; opacity: 0.7;">Familia Montes-Rojas</span>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <div class="grid-layout" id="grid">
+            
+            <article class="glass glass-hover card" data-cat="creative">
+                <div class="card-top">
+                    <div class="card-logo">🏗️</div>
+                    <span class="family-tag">Familia García</span>
+                </div>
+                <h3>García Arquitectos</h3>
+                <p>Estudio de arquitectura sustentable. Especialistas en remodelaciones residenciales modernas en la zona sur.</p>
+                <button class="card-btn">Ver Perfil</button>
+            </article>
+
+            <article class="glass glass-hover card" data-cat="health">
+                <div class="card-top">
+                    <div class="card-logo">🦷</div>
+                    <span class="family-tag">Familia Treviño</span>
+                </div>
+                <h3>Dental Care Plus</h3>
+                <p>Clínica integral de odontopediatría. Sabemos cómo tratar a los niños Welfare con paciencia y tecnología.</p>
+                <button class="card-btn">Ver Perfil</button>
+            </article>
+
+            <article class="glass glass-hover card" data-cat="legal">
+                <div class="card-top">
+                    <div class="card-logo">⚖️</div>
+                    <span class="family-tag">Familia Méndez</span>
+                </div>
+                <h3>Méndez & Asociados</h3>
+                <p>Asesoría legal corporativa y fiscal. Ayudamos a emprendedores de la comunidad a estructurar sus empresas.</p>
+                <button class="card-btn">Ver Perfil</button>
+            </article>
+
+            <article class="glass glass-hover card" data-cat="food">
+                <div class="card-top">
+                    <div class="card-logo">🥐</div>
+                    <span class="family-tag">Familia Lopez</span>
+                </div>
+                <h3>La Panetteria</h3>
+                <p>Panadería artesanal y servicio de catering para eventos. Ingredientes 100% orgánicos y locales.</p>
+                <button class="card-btn">Ver Perfil</button>
+            </article>
+
+            <article class="glass glass-hover card" data-cat="creative">
+                <div class="card-top">
+                    <div class="card-logo">⚡</div>
+                    <span class="family-tag">Familia Hernandez</span>
+                </div>
+                <h3>Nexus Tech</h3>
+                <p>Soluciones de domótica y seguridad inteligente para el hogar. Controla tu casa desde tu celular.</p>
+                <button class="card-btn">Ver Perfil</button>
+            </article>
+
+            <article class="glass glass-hover card" data-cat="health">
+                <div class="card-top">
+                    <div class="card-logo">🧘</div>
+                    <span class="family-tag">Familia Cantú</span>
+                </div>
+                <h3>Wellness Studio</h3>
+                <p>Clases de Pilates y Yoga. Primera clase gratis para mamás de la comunidad Welfare.</p>
+                <button class="card-btn">Ver Perfil</button>
+            </article>
+
+        </div>
+    </main>
+
+    <footer class="cta-footer">
+        <h2>¿Tienes un negocio?</h2>
+        <p>Únete a la red más potente de la ciudad. Exclusivo para familias activas del colegio Welfare.</p>
+        <a href="#" class="btn-register">Registrar mi Empresa</a>
+    </footer>
+
+    <script>
+        // --- INTERACTIVITY ENGINE ---
+
+        // 1. Navbar Scroll Effect
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // 2. Staggered Entrance Animation (Intersection Observer)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-up');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 100}ms`; // Stagger effect
+            observer.observe(card);
+        });
+
+        // 3. Filter Logic
+        function filterBy(category, btn) {
+            // Update UI
+            document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Filter Grid
+            const items = document.querySelectorAll('#grid article');
+            items.forEach(item => {
+                const itemCat = item.getAttribute('data-cat');
+                if (category === 'all' || itemCat === category) {
+                    item.style.display = 'flex';
+                    // Re-trigger animation
+                    item.classList.remove('fade-up');
+                    void item.offsetWidth; // Trigger reflow
+                    item.classList.add('fade-up');
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 4. AI Search Simulation
+        const searchInput = document.getElementById('aiInput');
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const items = document.querySelectorAll('#grid article');
+            
+            items.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if (text.includes(term)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+        
+        // Dynamic placeholder typing effect
+        const placeholders = [
+            "Busca 'Mejores dentistas para niños'...",
+            "Busca 'Abogados familiares'...",
+            "Busca 'Clases de arquitectura'...",
+            "Describe lo que necesitas..."
+        ];
+        let pIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+        
+        function typeEffect() {
+            const current = placeholders[pIndex];
+            
+            if (isDeleting) {
+                searchInput.placeholder = current.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                searchInput.placeholder = current.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            if (!isDeleting && charIndex === current.length) {
+                isDeleting = true;
+                setTimeout(typeEffect, 2000);
+            } else if (isDeleting && charIndex === 0) {
+                isDeleting = false;
+                pIndex = (pIndex + 1) % placeholders.length;
+                setTimeout(typeEffect, 500);
+            } else {
+                setTimeout(typeEffect, isDeleting ? 50 : 100);
+            }
+        }
+        
+        typeEffect(); // Start typing
+
+    </script>
+</body>
+</html>

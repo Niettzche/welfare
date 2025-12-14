@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio Empresarial Welfare</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        welfare: {
+                            blue: '#0056D2',
+                            cyan: '#4CC9F0',
+                            yellow: '#FFD60A',
+                            dark: '#0A1A3F'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'wave-slow': 'wave 15s linear infinite',
+                        'wave-fast': 'wave 10s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        wave: {
+                            '0%': { transform: 'translateX(0)' },
+                            '100%': { transform: 'translateX(-50%)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Efectos personalizados que Tailwind no cubre por defecto */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px -5px rgba(0, 86, 210, 0.15);
+            border-color: #FFD60A; /* Borde amarillo al hacer hover */
+        }
+
+        /* Animación de ondas */
+        .wave-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            overflow: hidden;
+            line-height: 0;
+            z-index: 0;
+        }
+
+        .wave-bg {
+            display: block;
+            width: 200%;
+            height: auto;
+        }
+
+        /* Ocultar scrollbar pero permitir scroll */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-welfare-yellow selection:text-welfare-dark">
+
+    <header class="relative bg-welfare-blue text-white overflow-hidden pb-32 pt-20">
+        
+        <div class="relative z-10 max-w-7xl mx-auto px-6 text-center">
+            <h1 class="font-display text-4xl md:text-6xl font-bold mb-4 tracking-tight">
+                La Comunidad Profesional <br>
+                <span class="text-welfare-cyan">Welfare</span>
+            </h1>
+            <p class="text-blue-100 text-lg mb-10 max-w-2xl mx-auto font-light">
+                Conecta con las empresas y servicios de confianza de nuestras familias.
+            </p>
+
+            <div class="max-w-xl mx-auto relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400 group-focus-within:text-welfare-blue transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <input type="text" 
+                    class="block w-full pl-12 pr-4 py-4 rounded-full border-none shadow-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-welfare-cyan/30 transition-all bg-white" 
+                    placeholder="Buscar servicios (ej. Dentista, Arquitectura...)">
+                <button class="absolute right-2 top-2 bottom-2 bg-welfare-yellow text-welfare-dark font-bold py-2 px-6 rounded-full hover:bg-yellow-300 transition-colors">
+                    Buscar
+                </button>
+            </div>
+        </div>
+
+        <div class="wave-container">
+            <div class="absolute bottom-0 w-full opacity-30 animate-wave-fast">
+                <svg class="wave-bg fill-welfare-cyan" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                    <path d="M0,224L48,213.3C96,203,192,181,288,181.3C384,181,480,203,576,224C672,245,768,267,864,261.3C960,256,1056,224,1152,197.3C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                </svg>
+            </div>
+            <div class="absolute bottom-0 w-full opacity-100 animate-wave-slow" style="animation-direction: reverse;">
+                 <svg class="wave-bg fill-slate-50" viewBox="0 0 1440 320" preserveAspectRatio="none">
+                    <path d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,213.3C1248,235,1344,213,1392,202.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+                </svg>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6 -mt-10 relative z-20 pb-20">
+        
+        <div class="flex overflow-x-auto no-scrollbar gap-3 pb-8 pt-2 sticky top-0 bg-slate-50/95 backdrop-blur-sm z-30 transition-all">
+            <button class="px-6 py-2 rounded-full bg-welfare-blue text-white font-semibold shadow-lg shadow-welfare-blue/20 whitespace-nowrap hover:scale-105 transition-transform">
+                Todos
+            </button>
+            <button class="px-6 py-2 rounded-full bg-white text-gray-600 border border-gray-200 font-medium hover:border-welfare-cyan hover:text-welfare-blue shadow-sm whitespace-nowrap transition-colors">
+                Salud
+            </button>
+            <button class="px-6 py-2 rounded-full bg-white text-gray-600 border border-gray-200 font-medium hover:border-welfare-cyan hover:text-welfare-blue shadow-sm whitespace-nowrap transition-colors">
+                Alimentos
+            </button>
+            <button class="px-6 py-2 rounded-full bg-white text-gray-600 border border-gray-200 font-medium hover:border-welfare-cyan hover:text-welfare-blue shadow-sm whitespace-nowrap transition-colors">
+                Legal
+            </button>
+            <button class="px-6 py-2 rounded-full bg-white text-gray-600 border border-gray-200 font-medium hover:border-welfare-cyan hover:text-welfare-blue shadow-sm whitespace-nowrap transition-colors">
+                Construcción
+            </button>
+            <button class="px-6 py-2 rounded-full bg-white text-gray-600 border border-gray-200 font-medium hover:border-welfare-cyan hover:text-welfare-blue shadow-sm whitespace-nowrap transition-colors">
+                Creativos
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-4">
+            
+            <div class="glass-card rounded-2xl p-6 relative group cursor-pointer overflow-hidden">
+                <div class="absolute top-0 right-0 bg-welfare-yellow text-welfare-dark text-xs font-bold px-3 py-1 rounded-bl-xl z-10">
+                    NUEVO
+                </div>
+                
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl border-2 border-white shadow-md">
+                        🦷 </div>
+                    <div>
+                        <h3 class="font-display font-bold text-xl text-gray-900 leading-tight">Clínica Sonrisas</h3>
+                        <p class="text-sm text-welfare-blue font-medium">Salud y Bienestar</p>
+                    </div>
+                </div>
+                
+                <p class="text-gray-500 text-sm mb-6 leading-relaxed">
+                    Especialistas en odontología pediátrica y ortodoncia invisible. Descuento especial para alumnos Welfare.
+                </p>
+
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        Familia Pérez (3°B)
+                    </span>
+                    
+                    <button class="bg-welfare-blue text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 shadow-lg hover:bg-welfare-cyan">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-card rounded-2xl p-6 relative group cursor-pointer">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl border-2 border-white shadow-md">
+                        🏗️
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-xl text-gray-900 leading-tight">Constructora Norte</h3>
+                        <p class="text-sm text-welfare-blue font-medium">Construcción</p>
+                    </div>
+                </div>
+                <p class="text-gray-500 text-sm mb-6 leading-relaxed">
+                    Diseño y remodelación de espacios residenciales. Presupuestos sin compromiso para la comunidad.
+                </p>
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        Familia González (5°A)
+                    </span>
+                    <button class="bg-welfare-blue text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 shadow-lg hover:bg-welfare-cyan">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+             <div class="glass-card rounded-2xl p-6 relative group cursor-pointer">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl border-2 border-white shadow-md">
+                        ⚖️
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-xl text-gray-900 leading-tight">Lex Abogados</h3>
+                        <p class="text-sm text-welfare-blue font-medium">Servicios Legales</p>
+                    </div>
+                </div>
+                <p class="text-gray-500 text-sm mb-6 leading-relaxed">
+                    Asesoría jurídica corporativa y familiar. Primera consulta gratuita mencionando Welfare.
+                </p>
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        Familia Rivas (1°C)
+                    </span>
+                    <button class="bg-welfare-blue text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 shadow-lg hover:bg-welfare-cyan">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+             <div class="glass-card rounded-2xl p-6 relative group cursor-pointer">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-2xl border-2 border-white shadow-md">
+                        🍰
+                    </div>
+                    <div>
+                        <h3 class="font-display font-bold text-xl text-gray-900 leading-tight">Dulce Vida Bakery</h3>
+                        <p class="text-sm text-welfare-blue font-medium">Alimentos</p>
+                    </div>
+                </div>
+                <p class="text-gray-500 text-sm mb-6 leading-relaxed">
+                    Pasteles personalizados y catering para eventos. Ingredientes orgánicos de primera calidad.
+                </p>
+                <div class="pt-4 border-t border-gray-100 flex items-center justify-between">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        Familia Velez (K2)
+                    </span>
+                    <button class="bg-welfare-blue text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transform translate-x-4 group-hover:translate-x-0 transition-all duration-300 shadow-lg hover:bg-welfare-cyan">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-20 rounded-3xl bg-welfare-dark relative overflow-hidden p-10 text-center">
+            <div class="relative z-10">
+                <h2 class="text-3xl font-display font-bold text-white mb-4">¿Tienes un negocio?</h2>
+                <p class="text-gray-300 mb-8 max-w-lg mx-auto">Únete al directorio oficial y conecta con miles de familias.</p>
+                <button class="bg-welfare-yellow text-welfare-dark font-bold py-3 px-8 rounded-full hover:bg-white hover:scale-105 transition-all shadow-lg shadow-yellow-500/20">
+                    Registrar mi empresa
+                </button>
+            </div>
+            <div class="absolute top-0 right-0 w-64 h-64 bg-welfare-blue rounded-full filter blur-3xl opacity-20 transform translate-x-1/2 -translate-y-1/2"></div>
+            <div class="absolute bottom-0 left-0 w-64 h-64 bg-welfare-cyan rounded-full filter blur-3xl opacity-20 transform -translate-x-1/2 translate-y-1/2"></div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 py-10 mt-10">
+        <div class="max-w-7xl mx-auto px-6 text-center text-gray-400 text-sm">
+            <p>&copy; 2025 Welfare School Community.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
