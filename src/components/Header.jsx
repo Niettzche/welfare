@@ -6,7 +6,6 @@ const Header = () => {
     <header className="bg-white border-b border-slate-200 fixed w-full z-50 top-0 h-16 flex items-center justify-between px-4 md:px-8 shadow-sm">
       <Link to="/" className="flex items-center shrink-0 cursor-pointer hover:opacity-80 transition-opacity gap-3">
         <img src="/src/assets/logo.png" alt="Welfare School Logo" className="h-10 w-auto" />
-        <span className="text-2xl font-bold text-welfare-blue tracking-tight hidden sm:block">Community</span>
       </Link>
 
       <div className="hidden md:flex flex-1 max-w-xl mx-8 relative group">

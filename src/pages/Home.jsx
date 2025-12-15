@@ -233,7 +233,7 @@ function Home() {
         selectedCategories={selectedCategories}
         onCategoryChange={handleCategoryChange}
       />
-      <section className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-slate-50">
+      <section className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
         
         {/* Header Area */}
         <div className="p-6 lg:p-8 pb-4 shrink-0 bg-slate-50 z-10">
