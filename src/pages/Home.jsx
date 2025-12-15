@@ -46,7 +46,10 @@ const mockListings = [
     subCategory: "Dental",
     description: "Comprehensive dental care for the whole family, specializing in pediatric dentistry and orthodontics.",
     imageUrl: "https://images.unsplash.com/photo-1606811841689-230391b3d3d6?auto=format&fit=crop&w=800&q=80",
-    delay: ""
+    delay: "",
+    surname: "Dr. Patel Family",
+    email: "info@apexdental.com",
+    phone: "(555) 123-4567"
   },
   {
     id: 2,
@@ -55,7 +58,9 @@ const mockListings = [
     subCategory: "Education",
     description: "Coding bootcamps and robotics workshops designed to inspire the next generation of tech leaders.",
     imageUrl: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-100"
+    delay: "delay-100",
+    surname: "The Chen Family",
+    website: "https://codewizards.edu"
   },
   {
     id: 3,
@@ -64,7 +69,8 @@ const mockListings = [
     subCategory: "Groceries",
     description: "Your local source for organic produce, eco-friendly household goods, and bulk pantry staples.",
     imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-200"
+    delay: "delay-200",
+    surname: "Garcia-Lopez Family"
   },
   {
     id: 4,

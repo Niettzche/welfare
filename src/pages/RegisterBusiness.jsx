@@ -7,6 +7,10 @@ const RegisterBusiness = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     surname: '',
+    email: '',
+    showEmail: false,
+    phone: '',
+    showPhone: false,
     businessName: '',
     category: '',
     description: '',
@@ -41,8 +45,11 @@ const RegisterBusiness = () => {
   const totalSteps = 4;
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+        ...prev, 
+        [name]: type === 'checkbox' ? checked : value 
+    }));
   };
 
   const handleNext = () => {
@@ -76,6 +83,24 @@ const RegisterBusiness = () => {
   const handleAnimationFinish = () => {
     setIsSubmitting(false);
     navigate('/');
+  };
+
+  // Helper to reset form fully
+  const resetForm = () => {
+    setIsSuccess(false);
+    setStep(1);
+    setFormData({ 
+        surname: '', 
+        email: '', 
+        showEmail: false, 
+        phone: '', 
+        showPhone: false, 
+        businessName: '', 
+        category: '', 
+        description: '', 
+        website: '' 
+    });
+    setAiReviewData(null);
   };
 
   const handleImageUpload = (e) => {
@@ -246,7 +271,7 @@ const RegisterBusiness = () => {
                             Return Home
                         </Link>
                         <button 
-                            onClick={() => { setIsSuccess(false); setStep(1); setFormData({ surname: '', businessName: '', category: '', description: '', website: '' }); setAiReviewData(null); }}
+                            onClick={resetForm}
                             className="inline-flex justify-center rounded-xl bg-welfare-blue px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-welfare-hover transition-all"
                         >
                             Register Another
@@ -273,7 +298,7 @@ const RegisterBusiness = () => {
                         {/* STEP 1: Family Info */}
                         {step === 1 && (
                             <div className="space-y-6 animate-pop-in">
-                                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2">Step 1: Family Information</h2>
+                                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2">Step 1: Contact & Verification</h2>
                                 <div>
                                     <label htmlFor="surname" className="block text-sm font-semibold text-slate-700 mb-2">Family Name (Apellido)</label>
                                     <input
@@ -288,6 +313,62 @@ const RegisterBusiness = () => {
                                         autoFocus
                                     />
                                     <p className="text-xs text-slate-500 mt-2">This helps parents recognize you within the school community.</p>
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <div>
+                                        <label htmlFor="email" className="block text-sm font-semibold text-slate-700 mb-2">Email Address</label>
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            id="email"
+                                            required
+                                            value={formData.email}
+                                            onChange={handleChange}
+                                            className="block w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 px-4 bg-slate-50 focus:bg-white transition-all"
+                                            placeholder="you@example.com"
+                                        />
+                                        <div className="mt-2 flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                name="showEmail"
+                                                id="showEmail"
+                                                checked={formData.showEmail}
+                                                onChange={handleChange}
+                                                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <label htmlFor="showEmail" className="ml-2 text-xs text-slate-600 cursor-pointer">Display publicly on listing</label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="phone" className="block text-sm font-semibold text-slate-700 mb-2">Phone Number</label>
+                                        <input
+                                            type="tel"
+                                            name="phone"
+                                            id="phone"
+                                            required
+                                            value={formData.phone}
+                                            onChange={handleChange}
+                                            className="block w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 px-4 bg-slate-50 focus:bg-white transition-all"
+                                            placeholder="+1 (555) 000-0000"
+                                        />
+                                        <div className="mt-2 flex items-center">
+                                            <input
+                                                type="checkbox"
+                                                name="showPhone"
+                                                id="showPhone"
+                                                checked={formData.showPhone}
+                                                onChange={handleChange}
+                                                className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <label htmlFor="showPhone" className="ml-2 text-xs text-slate-600 cursor-pointer">Display publicly on listing</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 text-xs text-blue-800 flex items-start">
+                                    <svg className="w-4 h-4 mr-2 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p>We use this information to verify your identity as a parent. You can choose to display different contact details on your public listing later.</p>
                                 </div>
                             </div>
                         )}
@@ -528,7 +609,7 @@ const RegisterBusiness = () => {
                                     type="button"
                                     onClick={handleNext}
                                     disabled={
-                                        (step === 1 && !formData.surname) ||
+                                        (step === 1 && (!formData.surname || !formData.email || !formData.phone)) ||
                                         (step === 2 && (!formData.businessName || !formData.category)) ||
                                         (step === 3 && !formData.description)
                                     }
