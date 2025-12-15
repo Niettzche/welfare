@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-const Preloader = ({ onFinish, title = "Welfare", subtitle = "Excellence in Community" }) => {
+const Preloader = ({ onFinish, title = "Welfare", subtitle = "Empowering minds, bodies and hearts." }) => {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {

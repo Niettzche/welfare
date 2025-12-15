@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-const Sidebar = ({ isOpen, onClose, onOpenAi }) => {
+const Sidebar = ({ isOpen, onClose, onOpenAi, selectedCategories, onCategoryChange }) => {
   // Prevent body scroll when mobile sidebar is open
   useEffect(() => {
     if (isOpen) {
@@ -12,6 +12,32 @@ const Sidebar = ({ isOpen, onClose, onOpenAi }) => {
       document.body.style.overflow = 'unset';
     };
   }, [isOpen]);
+
+  const categories = [
+    "Technology & IT",
+    "Health & Wellness", 
+    "Education & Tutoring", 
+    "Food & Beverage", 
+    "Professional Services", 
+    "Creative & Arts",
+    "Retail & Shopping",
+    "Manufacturing & Industry",
+    "Construction & Trades",
+    "Automotive",
+    "Real Estate",
+    "Finance & Insurance",
+    "Legal Services",
+    "Personal Care & Beauty",
+    "Entertainment & Events",
+    "Travel & Tourism",
+    "Agriculture & Farming",
+    "Non-Profit",
+    "Other"
+  ];
+
+  const handleCheckboxChange = (category) => {
+    onCategoryChange(category);
+  };
 
   const FilterContent = () => (
     <>
@@ -30,19 +56,15 @@ const Sidebar = ({ isOpen, onClose, onOpenAi }) => {
 
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-bold text-slate-900">Filters</h2>
-        <button className="text-xs text-welfare-blue font-medium hover:underline">Reset</button>
+        <button 
+            onClick={() => selectedCategories.length > 0 && onCategoryChange('RESET')}
+            className={`text-xs font-medium hover:underline ${selectedCategories.length > 0 ? 'text-welfare-blue' : 'text-slate-400 cursor-default'}`}
+        >
+            Reset
+        </button>
       </div>
 
       <div className="space-y-1">
-        <details className="group py-3 border-b border-slate-100">
-          <summary className="flex justify-between items-center font-medium cursor-pointer list-none text-slate-700 group-hover:text-welfare-blue transition-colors">
-            <span>All services</span>
-            <span className="transition group-open:rotate-180 text-slate-400">
-              <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6"></path></svg>
-            </span>
-          </summary>
-        </details>
-
         <details className="group py-3 border-b border-slate-100" open>
           <summary className="flex justify-between items-center font-medium cursor-pointer list-none text-slate-900 mb-4">
             <span>Categories</span>
@@ -51,45 +73,19 @@ const Sidebar = ({ isOpen, onClose, onOpenAi }) => {
             </span>
           </summary>
           <div className="space-y-3 text-sm pl-1 pb-2 text-slate-600">
-            <label className="flex items-center space-x-3 cursor-pointer group/item select-none">
-              <input type="checkbox" className="form-checkbox h-5 w-5 text-welfare-blue rounded border-slate-300 focus:ring-welfare-blue accent-welfare-blue transition-colors" defaultChecked />
-              <span className="flex-1 text-slate-900 group-hover/item:text-welfare-blue transition-colors">Education & Tutors</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">42</span>
-            </label>
-            <label className="flex items-center space-x-3 cursor-pointer group/item select-none">
-              <input type="checkbox" className="form-checkbox h-5 w-5 text-welfare-blue rounded border-slate-300 focus:ring-welfare-blue accent-welfare-blue transition-colors" defaultChecked />
-              <span className="flex-1 text-slate-900 group-hover/item:text-welfare-blue transition-colors">Health & Wellness</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">10</span>
-            </label>
-            <label className="flex items-center space-x-3 cursor-pointer group/item select-none">
-              <input type="checkbox" className="form-checkbox h-5 w-5 text-welfare-blue rounded border-slate-300 focus:ring-welfare-blue accent-welfare-blue transition-colors" defaultChecked />
-              <span className="flex-1 text-slate-900 group-hover/item:text-welfare-blue transition-colors">Professional Services</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">10</span>
-            </label>
-            <label className="flex items-center space-x-3 cursor-pointer group/item select-none">
-              <input type="checkbox" className="form-checkbox h-5 w-5 text-welfare-blue rounded border-slate-300 focus:ring-welfare-blue accent-welfare-blue transition-colors" defaultChecked />
-              <span className="flex-1 text-slate-900 group-hover/item:text-welfare-blue transition-colors">Food & Dining</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">2</span>
-            </label>
-          </div>
-        </details>
-
-        <details className="group py-3 border-b border-slate-100" open>
-          <summary className="flex justify-between items-center font-medium cursor-pointer list-none text-slate-900 mb-4">
-            <span>Grade Level</span>
-            <span className="transition group-open:rotate-180 text-slate-400">
-              <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6"></path></svg>
-            </span>
-          </summary>
-          <div className="space-y-3 text-sm pl-1 pb-2 text-slate-600">
-            <label className="flex items-center space-x-3 cursor-pointer group/item select-none">
-              <input type="checkbox" className="form-checkbox h-5 w-5 text-welfare-blue rounded border-slate-300 focus:ring-welfare-blue accent-welfare-blue transition-colors" />
-              <span className="flex-1 text-slate-900 group-hover/item:text-welfare-blue transition-colors">Pre-school</span>
-            </label>
-            <label className="flex items-center space-x-3 cursor-pointer group/item select-none">
-              <input type="checkbox" className="form-checkbox h-5 w-5 text-welfare-blue rounded border-slate-300 focus:ring-welfare-blue accent-welfare-blue transition-colors" />
-              <span className="flex-1 text-slate-900 group-hover/item:text-welfare-blue transition-colors">Primary School</span>
-            </label>
+            {categories.map((category) => (
+                <label key={category} className="flex items-center space-x-3 cursor-pointer group/item select-none">
+                    <input 
+                        type="checkbox" 
+                        className="form-checkbox h-5 w-5 text-welfare-blue rounded border-slate-300 focus:ring-welfare-blue accent-welfare-blue transition-colors" 
+                        checked={selectedCategories.includes(category)}
+                        onChange={() => handleCheckboxChange(category)}
+                    />
+                    <span className={`flex-1 group-hover/item:text-welfare-blue transition-colors ${selectedCategories.includes(category) ? 'text-welfare-blue font-medium' : 'text-slate-900'}`}>
+                        {category}
+                    </span>
+                </label>
+            ))}
           </div>
         </details>
       </div>
