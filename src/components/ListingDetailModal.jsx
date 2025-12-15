@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import logo from '../assets/logo.png';
 
 const ListingDetailModal = ({ isOpen, onClose, listing }) => {
   const [view, setView] = useState('details'); // 'details' or 'contact'
@@ -153,7 +154,7 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
             <div className="flex flex-col items-center justify-center p-8 opacity-50 hover:opacity-80 transition-opacity duration-700">
                 <div className="w-24 h-24 relative animate-elegant-float">
                     <div className="absolute inset-0 bg-blue-100 rounded-full filter blur-xl opacity-50 animate-pulse"></div>
-                    <img src="/src/assets/logo.png" alt="Welfare" className="relative w-full h-full object-contain" />
+                    <img src={logo} alt="Welfare" className="relative w-full h-full object-contain" />
                 </div>
                 <span className="text-xs font-bold text-blue-200 uppercase tracking-[0.3em] mt-6">Welfare Community</span>
             </div>

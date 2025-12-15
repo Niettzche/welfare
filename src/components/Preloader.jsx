@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import logo from '../assets/logo.png';
 
 const Preloader = ({ onFinish, title = "Welfare", subtitle = "Empowering minds, bodies and hearts." }) => {
   const [exiting, setExiting] = useState(false);
@@ -43,7 +44,7 @@ const Preloader = ({ onFinish, title = "Welfare", subtitle = "Empowering minds, 
            <div className="preloader-logo-glow absolute inset-0 bg-white/20 blur-3xl rounded-full scale-150 animate-pulse"></div>
            
            <img 
-            src="/src/assets/logo.png" 
+            src={logo} 
             alt="Welfare School" 
             className="preloader-logo-img relative w-36 h-auto md:w-48 object-contain drop-shadow-2xl brightness-0 invert" 
           />

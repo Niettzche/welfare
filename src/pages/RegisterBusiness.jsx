@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Preloader from '../components/Preloader';
+import logo from '../assets/logo.png';
 
 const RegisterBusiness = () => {
   const navigate = useNavigate();
@@ -210,25 +211,25 @@ const RegisterBusiness = () => {
 
             {/* Floating Logos */}
             <div className="absolute top-20 left-10 w-16 h-16 opacity-20 animate-elegant-float pointer-events-none">
-                <img src="/src/assets/logo.png" alt="" className="w-full h-full object-contain brightness-0 invert" />
+                <img src={logo} alt="" className="w-full h-full object-contain brightness-0 invert" />
             </div>
             <div className="absolute top-40 right-20 w-24 h-24 opacity-15 animate-elegant-float [animation-delay:1s] pointer-events-none">
-                <img src="/src/assets/logo.png" alt="" className="w-full h-full object-contain brightness-0 invert -rotate-12" />
+                <img src={logo} alt="" className="w-full h-full object-contain brightness-0 invert -rotate-12" />
             </div>
             <div className="absolute bottom-40 right-20 w-32 h-32 opacity-10 animate-elegant-float [animation-delay:2s] pointer-events-none">
-                <img src="/src/assets/logo.png" alt="" className="w-full h-full object-contain brightness-0 invert rotate-12" />
+                <img src={logo} alt="" className="w-full h-full object-contain brightness-0 invert rotate-12" />
             </div>
             <div className="absolute bottom-10 left-1/3 w-20 h-20 opacity-15 animate-elegant-float [animation-delay:3s] pointer-events-none">
-                <img src="/src/assets/logo.png" alt="" className="w-full h-full object-contain brightness-0 invert rotate-45" />
+                <img src={logo} alt="" className="w-full h-full object-contain brightness-0 invert rotate-45" />
             </div>
             <div className="absolute top-1/2 left-[-50px] w-48 h-48 opacity-5 animate-spin-slower pointer-events-none blur-sm">
-                <img src="/src/assets/logo.png" alt="" className="w-full h-full object-contain brightness-0 invert" />
+                <img src={logo} alt="" className="w-full h-full object-contain brightness-0 invert" />
             </div>
             <div className="absolute top-[-40px] right-[20%] w-40 h-40 opacity-5 animate-spin-slow-reverse pointer-events-none blur-sm">
-                <img src="/src/assets/logo.png" alt="" className="w-full h-full object-contain brightness-0 invert" />
+                <img src={logo} alt="" className="w-full h-full object-contain brightness-0 invert" />
             </div>
             <div className="absolute bottom-[-20px] right-[-20px] w-56 h-56 opacity-5 animate-pulse pointer-events-none blur-md">
-                <img src="/src/assets/logo.png" alt="" className="w-full h-full object-contain brightness-0 invert" />
+                <img src={logo} alt="" className="w-full h-full object-contain brightness-0 invert" />
             </div>
 
             {/* Interactive Cursor Glow */}
