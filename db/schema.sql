@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS businesses;
 
 CREATE TABLE businesses (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY,
     surname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
     show_email TINYINT(1) DEFAULT 0,
