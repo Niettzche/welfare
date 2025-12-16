@@ -1,20 +1,20 @@
 DROP TABLE IF EXISTS businesses;
 
 CREATE TABLE businesses (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    surname TEXT NOT NULL,
-    email TEXT NOT NULL,
-    show_email BOOLEAN DEFAULT 0,
-    phone TEXT NOT NULL,
-    show_phone BOOLEAN DEFAULT 0,
-    business_name TEXT NOT NULL,
-    category TEXT NOT NULL,
-    discount TEXT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    surname VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    show_email TINYINT(1) DEFAULT 0,
+    phone VARCHAR(50) NOT NULL,
+    show_phone TINYINT(1) DEFAULT 0,
+    business_name VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    discount VARCHAR(50) NOT NULL,
     description TEXT NOT NULL,
-    website TEXT,
-    logo_url TEXT,
+    website VARCHAR(255),
+    logo_url VARCHAR(255),
     tags TEXT,
-    status TEXT DEFAULT 'pending',
+    status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
