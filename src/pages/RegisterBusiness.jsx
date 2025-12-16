@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import Preloader from '../components/Preloader';
 import logo from '../assets/logo.png';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
 const RegisterBusiness = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
@@ -14,14 +16,20 @@ const RegisterBusiness = () => {
     showPhone: false,
     businessName: '',
     category: '',
+    discount: '',
     description: '',
-    website: ''
+    website: '',
+    logoFile: null,
+    coverFile: null
   });
   const [aiReviewData, setAiReviewData] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [logoPreview, setLogoPreview] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(null);
   
   // Tag adding state
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -30,6 +38,8 @@ const RegisterBusiness = () => {
   // Mouse position state for interactive background
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const fileInputRef = useRef(null);
+  const logoInputRef = useRef(null);
+  const coverInputRef = useRef(null);
 
   useEffect(() => {
     const handleMouseMove = (event) => {
@@ -47,25 +57,114 @@ const RegisterBusiness = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ 
-        ...prev, 
-        [name]: type === 'checkbox' ? checked : value 
-    }));
+    const stripHtml = (val) => val.replace(/<[^>]*>/g, '');
+    const sanitizeBasic = (val) => stripHtml(val).replace(/[^\p{L}\p{N}\s.,;:!?'"()-]/gu, '');
+
+    if (type === 'checkbox') {
+        setFormData(prev => ({ ...prev, [name]: checked }));
+        return;
+    }
+
+    if (type === 'select-one') {
+        const sanitized = stripHtml(value).trim();
+        setFormData(prev => ({ ...prev, [name]: sanitized }));
+        return;
+    }
+
+    if (name === 'email') {
+        const sanitized = stripHtml(value)
+            .replace(/\s/g, '')
+            .replace(/[^a-zA-Z0-9@._+-]/g, '');
+        setFormData(prev => ({ ...prev, email: sanitized }));
+        return;
+    }
+
+    if (name === 'phone') {
+        const sanitized = stripHtml(value).replace(/[^\d+\-()\s]/g, '');
+        setFormData(prev => ({ ...prev, phone: sanitized }));
+        return;
+    }
+
+    if (name === 'website') {
+        const sanitized = stripHtml(value).trim();
+        setFormData(prev => ({ ...prev, website: sanitized }));
+        return;
+    }
+
+    const sanitizedValue = sanitizeBasic(value);
+    setFormData(prev => ({ ...prev, [name]: sanitizedValue }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    const isValidEmail = (email) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+    const isValidPhone = (phone) => /^[\d+\-()\s]{7,20}$/.test(phone);
+
+    if (step === 1) {
+        if (!isValidEmail(formData.email)) {
+            setFormError('Please enter a valid email address.');
+            return;
+        }
+        if (!isValidPhone(formData.phone)) {
+            setFormError('Please enter a valid phone number (7-20 digits, + - ( ) allowed).');
+            return;
+        }
+    }
+
+    if (step === 2) {
+        if (!formData.discount) {
+            setFormError('Please select the community discount you can offer.');
+            return;
+        }
+        const site = formData.website.trim();
+        if (site && !/^https?:\/\//i.test(site)) {
+            setFormError('Please include http:// or https:// in your website URL.');
+            return;
+        }
+        if (!formData.description) {
+            setFormError('Please provide a description.');
+            return;
+        }
+    }
+
+    setFormError('');
+
     if (step === 3) {
-      // Trigger AI generation simulation
+      // Transition to AI Review (Step 4)
       setIsGeneratingAi(true);
-      setTimeout(() => {
-        setAiReviewData({
-          optimizedDescription: `✨ AI Enhanced: ${formData.description} We are a family-owned business dedicated to excellence in ${formData.category}, serving the Welfare community with pride.`,
-          suggestedImage: "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80", // Generic office placeholder
-          tags: ["Community Verified", "Family Owned", "Top Rated"]
-        });
-        setIsGeneratingAi(false);
-        setStep(4);
-      }, 2000);
+      
+      try {
+          const res = await fetch(`${API_BASE}/ai/optimize`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                  description: formData.description,
+                  category: formData.category,
+                  business_name: formData.businessName
+              })
+          });
+
+          if (!res.ok) throw new Error("AI Service unavailable");
+          
+          const data = await res.json();
+          
+          setAiReviewData({
+            optimizedDescription: data.optimizedDescription || formData.description,
+            tags: data.tags || [formData.category, "Verified"],
+            suggestedImage: `https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80` // Placeholder for now
+          });
+
+      } catch (err) {
+          console.error(err);
+          // Fallback if AI fails
+          setAiReviewData({
+            optimizedDescription: formData.description,
+            tags: [formData.category],
+            suggestedImage: `https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80`
+          });
+      } finally {
+          setIsGeneratingAi(false);
+          setStep(4);
+      }
     } else {
       setStep(prev => Math.min(prev + 1, totalSteps));
     }
@@ -75,15 +174,84 @@ const RegisterBusiness = () => {
     setStep(prev => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!hasAcceptedTerms) {
+        setFormError('Please accept the commercial terms to continue.');
+        return;
+    }
+    if (formData.website && !/^https?:\/\//i.test(formData.website.trim())) {
+        setFormError('Please enter the full website URL including http:// or https://');
+        return;
+    }
+    setFormError('');
     setIsSubmitting(true);
-    // The actual state change to success will happen when the Preloader finishes
-  };
 
-  const handleAnimationFinish = () => {
-    setIsSubmitting(false);
-    navigate('/');
+    const payload = {
+        surname: formData.surname.trim(),
+        email: formData.email.trim().toLowerCase(),
+        phone: formData.phone.trim(),
+        show_email: formData.showEmail,
+        show_phone: formData.showPhone,
+        business_name: formData.businessName.trim(),
+        category: formData.category,
+        discount: formData.discount,
+        description: (aiReviewData?.optimizedDescription || formData.description).trim(),
+        website: formData.website.trim() || null,
+        logo_url: null,
+        cover_url: null,
+        tags: aiReviewData?.tags || [],
+    };
+
+    try {
+        if (formData.logoFile) {
+            const form = new FormData();
+            form.append('logo', formData.logoFile);
+            const uploadRes = await fetch(`${API_BASE}/upload-logo`, {
+                method: 'POST',
+                body: form,
+            });
+            if (!uploadRes.ok) {
+                const err = await uploadRes.json().catch(() => ({}));
+                throw new Error(err.error || 'Error uploading logo.');
+            }
+            const uploadData = await uploadRes.json();
+            payload.logo_url = uploadData.logo_url;
+        }
+
+        // Reuse logo endpoint for cover for now
+        if (formData.coverFile) {
+            const form = new FormData();
+            form.append('logo', formData.coverFile);
+            const uploadRes = await fetch(`${API_BASE}/upload-logo`, {
+                method: 'POST',
+                body: form,
+            });
+            if (!uploadRes.ok) {
+                const err = await uploadRes.json().catch(() => ({}));
+                throw new Error(err.error || 'Error uploading cover.');
+            }
+            const uploadData = await uploadRes.json();
+            // payload.cover_url = uploadData.logo_url; // If backend supported it
+        }
+
+        const res = await fetch(`${API_BASE}/businesses`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error || 'Unable to register business. Please try again.');
+        }
+
+        setIsSuccess(true);
+    } catch (err) {
+        setFormError(err.message);
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   // Helper to reset form fully
@@ -98,10 +266,16 @@ const RegisterBusiness = () => {
         showPhone: false, 
         businessName: '', 
         category: '', 
+        discount: '', 
         description: '', 
-        website: '' 
+        website: '', 
+        logoFile: null,
+        coverFile: null
     });
     setAiReviewData(null);
+    setLogoPreview(null);
+    setCoverPreview(null);
+    setFormError('');
   };
 
   const handleImageUpload = (e) => {
@@ -113,6 +287,22 @@ const RegisterBusiness = () => {
             suggestedImage: imageUrl
         }));
     }
+  };
+
+  const handleLogoUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setLogoPreview(previewUrl);
+    setFormData(prev => ({ ...prev, logoFile: file }));
+  };
+
+  const handleCoverUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setCoverPreview(previewUrl);
+    setFormData(prev => ({ ...prev, coverFile: file }));
   };
 
   const handleAddTag = () => {
@@ -147,14 +337,6 @@ const RegisterBusiness = () => {
     "Non-Profit",
     "Other"
   ];
-
-  if (isSubmitting) {
-    return <Preloader 
-      onFinish={handleAnimationFinish} 
-      title="Registration Complete"
-      subtitle="Your business is now listed"
-    />;
-  }
 
   if (isGeneratingAi) {
      return <Preloader 
@@ -256,29 +438,14 @@ const RegisterBusiness = () => {
             {!isSuccess && renderStepIndicator()}
 
             {isSuccess ? (
-                <div className="bg-white/95 backdrop-blur-xl border border-white/20 rounded-3xl p-8 sm:p-12 text-center animate-fade-in-up shadow-2xl">
-                    <div className="h-24 w-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
-                        <svg className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-4">You're All Set!</h2>
-                    <p className="text-slate-600 mb-8 text-lg">Thank you for registering <strong>{formData.businessName}</strong>. <br/>Your listing is under review and will be live shortly.</p>
-                    <div className="flex justify-center gap-4">
-                        <Link 
-                            to="/"
-                            className="inline-flex justify-center rounded-xl bg-white border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50 transition-all"
-                        >
-                            Return Home
-                        </Link>
-                        <button 
-                            onClick={resetForm}
-                            className="inline-flex justify-center rounded-xl bg-welfare-blue px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-welfare-hover transition-all"
-                        >
-                            Register Another
-                        </button>
-                    </div>
-                </div>
+                <Preloader 
+                  onFinish={() => {
+                    resetForm();
+                    navigate('/');
+                  }} 
+                  title="You're now listed"
+                  subtitle="Your business has been submitted"
+                />
             ) : (
                 <div className="bg-white/95 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl p-6 sm:p-10 animate-fade-in-up relative overflow-hidden">
                     {/* Top Accent Line */}
@@ -374,7 +541,7 @@ const RegisterBusiness = () => {
                             </div>
                         )}
 
-                        {/* STEP 2: Business Info */}
+                        {/* STEP 2: Business Details */}
                         {step === 2 && (
                             <div className="space-y-6 animate-pop-in">
                                 <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2">Step 2: Business Details</h2>
@@ -419,14 +586,30 @@ const RegisterBusiness = () => {
                                         className="block w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 px-4 bg-slate-50 focus:bg-white transition-all"
                                         placeholder="https://www.example.com"
                                     />
+                                    <p className="text-xs text-slate-500 mt-2">If provided, include the full URL with http:// or https://</p>
                                 </div>
-                            </div>
-                        )}
-
-                        {/* STEP 3: Description */}
-                        {step === 3 && (
-                            <div className="space-y-6 animate-pop-in">
-                                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2">Step 3: Description</h2>
+                                <div>
+                                    <label htmlFor="discount" className="block text-sm font-semibold text-slate-700 mb-2">Community Discount</label>
+                                    <select
+                                        name="discount"
+                                        id="discount"
+                                        required
+                                        value={formData.discount}
+                                        onChange={handleChange}
+                                        className="block w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 px-4 bg-slate-50 focus:bg-white transition-all"
+                                    >
+                                        <option value="">Select an option</option>
+                                        <option value="5%">5% off for Welfare families</option>
+                                        <option value="10%">10% off for Welfare families</option>
+                                        <option value="15%">15% off for Welfare families</option>
+                                        <option value="20%">20% off for Welfare families</option>
+                                        <option value="25%">25% off for Welfare families</option>
+                                        <option value="30%">30% off for Welfare families</option>
+                                        <option value="40%">40% off for Welfare families</option>
+                                        <option value="50%">50% off for Welfare families</option>
+                                    </select>
+                                    <p className="text-xs text-slate-500 mt-2">Choose the benefit you can offer to the community. You can detail conditions in the description.</p>
+                                </div>
                                 <div>
                                     <label htmlFor="description" className="block text-sm font-semibold text-slate-700 mb-2">Description</label>
                                     <textarea
@@ -434,12 +617,95 @@ const RegisterBusiness = () => {
                                         id="description"
                                         rows="5"
                                         required
+                                        maxLength="500"
                                         value={formData.description}
                                         onChange={handleChange}
                                         className="block w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 px-4 bg-slate-50 focus:bg-white transition-all resize-none"
                                         placeholder="Describe your services and what you offer to the community..."
                                         autoFocus
                                     ></textarea>
+                                    <p className="text-xs text-slate-400 text-right mt-1">{formData.description.length}/500</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* STEP 3: Media & Branding */}
+                        {step === 3 && (
+                            <div className="space-y-8 animate-pop-in">
+                                <div>
+                                    <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2">Step 3: Visual Identity</h2>
+                                    <p className="text-sm text-slate-600 mt-2">
+                                        Upload visuals to make your listing attractive.
+                                    </p>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Logo Upload */}
+                                    <div className="space-y-3">
+                                        <label className="block text-sm font-bold text-slate-700">Business Logo</label>
+                                        <div 
+                                            className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group relative overflow-hidden" 
+                                            onClick={() => logoInputRef.current?.click()}
+                                        >
+                                            {logoPreview ? (
+                                                <>
+                                                    <img src={logoPreview} alt="Logo Preview" className="h-full w-full object-contain p-4" />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={(e) => { e.stopPropagation(); setLogoPreview(null); setFormData(prev => ({ ...prev, logoFile: null })); }}
+                                                        className="absolute top-2 right-2 bg-red-100 text-red-600 rounded-full p-1.5 hover:bg-red-200 transition-colors shadow-sm"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div className="p-4">
+                                                    <div className="h-12 w-12 bg-blue-100 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                        </svg>
+                                                    </div>
+                                                    <p className="text-sm font-semibold text-slate-700">Upload Logo</p>
+                                                    <p className="text-xs text-slate-400 mt-1">Square format, png/jpg</p>
+                                                </div>
+                                            )}
+                                            <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
+                                        </div>
+                                    </div>
+
+                                    {/* Cover Upload */}
+                                    <div className="space-y-3">
+                                        <label className="block text-sm font-bold text-slate-700">Cover Image</label>
+                                        <div 
+                                            className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-purple-400 hover:bg-purple-50/30 transition-all cursor-pointer group relative overflow-hidden" 
+                                            onClick={() => coverInputRef.current?.click()}
+                                        >
+                                            {coverPreview ? (
+                                                <>
+                                                    <img src={coverPreview} alt="Cover Preview" className="h-full w-full object-cover" />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={(e) => { e.stopPropagation(); setCoverPreview(null); setFormData(prev => ({ ...prev, coverFile: null })); }}
+                                                        className="absolute top-2 right-2 bg-red-100 text-red-600 rounded-full p-1.5 hover:bg-red-200 transition-colors shadow-sm"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div className="p-4">
+                                                    <div className="h-12 w-12 bg-purple-100 text-purple-500 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <p className="text-sm font-semibold text-slate-700">Upload Cover</p>
+                                                    <p className="text-xs text-slate-400 mt-1">Landscape, showing your work</p>
+                                                </div>
+                                            )}
+                                            <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverUpload} />
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -451,116 +717,36 @@ const RegisterBusiness = () => {
                                     <svg className="w-6 h-6 text-purple-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                                     </svg>
-                                    Step 4: AI Review
+                                    Step 4: AI Enhancement
                                 </h2>
                                 
-                                <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-                                    <div className="h-40 bg-slate-200 relative group">
-                                        <img src={aiReviewData.suggestedImage} alt="AI Suggestion" className="w-full h-full object-cover transition-opacity duration-300 group-hover:opacity-90" />
-                                        <div className="absolute top-4 right-4 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md z-10">
-                                            AI Selected
+                                <div className="bg-purple-50 rounded-xl p-5 border border-purple-100 shadow-sm">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h3 className="text-sm font-bold text-purple-800 uppercase tracking-wide">AI Optimized Description</h3>
+                                        <div className="flex items-center text-xs text-purple-600 bg-white px-2 py-1 rounded-md border border-purple-100">
+                                            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+                                            Generated
                                         </div>
-                                        <button 
-                                            type="button"
-                                            onClick={() => fileInputRef.current.click()}
-                                            className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-                                        >
-                                            <div className="bg-white/20 backdrop-blur-md border border-white/50 text-white px-4 py-2 rounded-full font-semibold text-sm flex items-center shadow-lg hover:bg-white/30 transition-colors">
-                                                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                                </svg>
-                                                Change Image
-                                            </div>
-                                        </button>
-                                        <input 
-                                            type="file" 
-                                            ref={fileInputRef} 
-                                            className="hidden" 
-                                            accept="image/*"
-                                            onChange={handleImageUpload}
-                                        />
                                     </div>
-                                    <div className="p-6 space-y-4">
-                                        <div>
-                                            <div className="flex justify-between items-center mb-2">
-                                                <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Optimized Description</h3>
-                                                <button 
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setIsGeneratingAi(true);
-                                                        setTimeout(() => {
-                                                            setAiReviewData(prev => ({
-                                                                ...prev,
-                                                                optimizedDescription: `✨ New Version: We pride ourselves on delivering top-tier ${formData.category} services. Our commitment to the Welfare family is unwavering. Come visit us!`,
-                                                                suggestedImage: `https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=800&q=80&random=${Math.random()}`
-                                                            }));
-                                                            setIsGeneratingAi(false);
-                                                        }, 1500);
-                                                    }}
-                                                    className="text-xs text-purple-600 hover:text-purple-700 font-medium flex items-center"
-                                                >
-                                                    <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                                    </svg>
-                                                    Regenerate
-                                                </button>
-                                            </div>
-                                            <textarea 
-                                                className="w-full mt-1 text-slate-800 leading-relaxed bg-white p-3 rounded-lg border border-slate-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all resize-none text-sm"
-                                                rows="4"
-                                                value={aiReviewData.optimizedDescription}
-                                                onChange={(e) => setAiReviewData(prev => ({...prev, optimizedDescription: e.target.value}))}
-                                            />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Suggested Tags</h3>
-                                            <div className="flex flex-wrap gap-2 mt-2">
-                                                {aiReviewData.tags.map(tag => (
-                                                    <span key={tag} className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium relative group cursor-default">
-                                                        {tag}
-                                                    </span>
-                                                ))}
-                                                
-                                                {isAddingTag ? (
-                                                    <div className="flex items-center">
-                                                        <input 
-                                                            type="text" 
-                                                            value={newTagInputValue}
-                                                            onChange={(e) => setNewTagInputValue(e.target.value)}
-                                                            onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-                                                            className="w-24 px-2 py-1 text-xs border border-blue-300 rounded-l-full focus:outline-none focus:border-blue-500 h-6"
-                                                            autoFocus
-                                                            placeholder="New tag..."
-                                                        />
-                                                        <button 
-                                                            type="button" 
-                                                            onClick={handleAddTag}
-                                                            className="px-2 py-1 bg-blue-600 text-white rounded-r-full text-xs hover:bg-blue-700 h-6 flex items-center"
-                                                        >
-                                                            ✓
-                                                        </button>
-                                                         <button 
-                                                            type="button" 
-                                                            onClick={() => setIsAddingTag(false)}
-                                                            className="ml-1 text-slate-400 hover:text-slate-600 h-6 w-6 flex items-center justify-center rounded-full hover:bg-slate-100"
-                                                        >
-                                                            ✕
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <button 
-                                                        type="button"
-                                                        onClick={() => setIsAddingTag(true)}
-                                                        className="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-xs font-medium hover:bg-slate-200 transition-colors flex items-center border border-slate-200 border-dashed"
-                                                    >
-                                                        <svg className="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-                                                        </svg>
-                                                        Add
-                                                    </button>
-                                                )}
-                                            </div>
-                                        </div>
+                                    <textarea 
+                                        className="w-full text-slate-700 bg-white p-4 rounded-lg border border-purple-200 focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm leading-relaxed resize-none transition-all"
+                                        rows="5"
+                                        value={aiReviewData.optimizedDescription}
+                                        onChange={(e) => setAiReviewData(prev => ({...prev, optimizedDescription: e.target.value}))}
+                                    />
+                                    <p className="text-xs text-slate-500 mt-2">
+                                        Feel free to edit this description. It will be shown on your public profile.
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <h3 className="text-sm font-bold text-slate-700 mb-2">Smart Tags</h3>
+                                    <div className="flex flex-wrap gap-2">
+                                        {aiReviewData.tags.map((tag, i) => (
+                                            <span key={i} className="px-3 py-1 bg-white border border-slate-200 rounded-full text-xs font-medium text-slate-600 shadow-sm">
+                                                {tag}
+                                            </span>
+                                        ))}
                                     </div>
                                 </div>
                                 
@@ -585,50 +771,42 @@ const RegisterBusiness = () => {
                                     </div>
                                 </div>
 
-                                <p className="text-xs text-slate-500 text-center">
-                                    Review the AI-enhanced details above. You can proceed with these changes or go back to edit your original input.
-                                </p>
+                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 mt-4">
+                                    <div className="flex items-center h-5 text-amber-600">
+                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                        </svg>
+                                    </div>
+                                    <div className="text-sm">
+                                        <label className="font-bold text-amber-900 block mb-1">
+                                            Verification Required
+                                        </label>
+                                        <p className="text-amber-800">
+                                            A confirmation email will be sent to <span className="font-semibold">{formData.email}</span>. You must click the link in that email to activate your listing visible to the community.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
                         )}
 
-                        {/* Navigation Buttons */}
+                        {formError && (
+                            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-100 text-sm text-red-700">
+                                {formError}
+                            </div>
+                        )}
+
                         <div className="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between">
                             {step > 1 ? (
-                                <button
-                                    type="button"
-                                    onClick={handleBack}
-                                    className="px-6 py-3 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 font-semibold transition-colors"
-                                >
-                                    Back
-                                </button>
-                            ) : (
-                                <div></div> // Spacer
-                            )}
+                                <button type="button" onClick={handleBack} className="px-6 py-3 rounded-xl text-slate-500 hover:bg-slate-100 font-semibold transition-colors">Back</button>
+                            ) : <div></div>}
 
                             {step < totalSteps ? (
-                                <button
-                                    type="button"
-                                    onClick={handleNext}
-                                    disabled={
-                                        (step === 1 && (!formData.surname || !formData.email || !formData.phone)) ||
-                                        (step === 2 && (!formData.businessName || !formData.category)) ||
-                                        (step === 3 && !formData.description)
-                                    }
-                                    className="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:bg-blue-700 hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {step === 3 ? 'Generate AI Preview' : 'Next Step'}
+                                <button type="button" onClick={handleNext} className="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
+                                    {step === 3 ? 'Optimize with AI' : 'Next Step'}
                                 </button>
                             ) : (
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting || !hasAcceptedTerms}
-                                    className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${
-                                        isSubmitting || !hasAcceptedTerms
-                                        ? 'bg-slate-300 cursor-not-allowed text-slate-500 shadow-none' 
-                                        : 'bg-green-500 hover:bg-green-600 shadow-green-500/30 hover:shadow-green-500/50 hover:-translate-y-0.5'
-                                    }`}
-                                >
-                                    {isSubmitting ? 'Submitting...' : 'Approve & Register'}
+                                <button type="submit" disabled={isSubmitting || !hasAcceptedTerms} className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${isSubmitting || !hasAcceptedTerms ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}>
+                                    {isSubmitting ? 'Submitting...' : 'Register Business'}
                                 </button>
                             )}
                         </div>

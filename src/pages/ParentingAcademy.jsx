@@ -1,0 +1,192 @@
+import React, { useState, useEffect } from 'react';
+import Layout from '../components/Layout';
+import Preloader from '../components/Preloader';
+
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
+const ParentingAcademy = () => {
+  const [courses, setCourses] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+  
+  const itemsPerPage = 3; 
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/videos`);
+        if (!res.ok) throw new Error("Failed to load videos");
+        const data = await res.json();
+        
+        // Transform data if necessary, or use directly if backend matches frontend props
+        // Backend returns: { id, title, url, thumbnail, created_at }
+        // Frontend expects: { id, title, url, thumbnail, tag (optional), color (optional) }
+        
+        // Add random colors/tags for visual consistency with the maximalist theme since backend doesn't store them yet
+        const enrichedData = data.map((video, idx) => ({
+            ...video,
+            tag: ["Behavior", "Growth", "Health", "Psychology"][idx % 4],
+            color: ["bg-yellow-300", "bg-pink-300", "bg-green-300", "bg-purple-300", "bg-blue-300", "bg-orange-300"][idx % 6]
+        }));
+
+        setCourses(enrichedData);
+      } catch (err) {
+        console.error(err);
+        setError("Unable to load the course directory.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = courses.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(courses.length / itemsPerPage);
+
+  const nextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) setCurrentPage(prev => prev - 1);
+  };
+
+  if (isLoading) return <Preloader onFinish={() => {}} title="Loading Academy" subtitle="Fetching resources..." />;
+
+  return (
+    <Layout>
+      <div className="flex-1 min-h-screen bg-[#f0f0f0] bg-[radial-gradient(#cbd5e1_2px,transparent_2px)] bg-[length:30px_30px] font-sans">
+        
+        {/* Massive Hero Section */}
+        <div className="w-full border-b-4 border-slate-900 bg-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10 font-black text-9xl select-none pointer-events-none">
+                ACADEMY
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-6 py-16 md:py-24 relative z-10">
+                <div className="inline-block bg-yellow-300 border-2 border-slate-900 px-4 py-1 font-bold text-slate-900 mb-6 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)] transform -rotate-2">
+                    WELFARE COMMUNITY EXCLUSIVE
+                </div>
+                
+                <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-slate-900 leading-[0.9] tracking-tighter mb-8">
+                    PARENTING<br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 stroke-black text-stroke-2">ACADEMY</span>
+                </h1>
+                
+                <p className="text-xl md:text-2xl font-bold text-slate-700 max-w-2xl leading-relaxed border-l-8 border-blue-600 pl-6 bg-slate-50/80 p-4 backdrop-blur-sm">
+                    A curated repository of expert knowledge. <br/>
+                    Watch, learn, and grow your parenting skills.
+                </p>
+            </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="max-w-7xl mx-auto px-6 py-12 relative">
+            
+            {error ? (
+                <div className="text-center py-20">
+                    <h3 className="text-2xl font-bold text-slate-900">{error}</h3>
+                    <button onClick={() => window.location.reload()} className="mt-4 px-6 py-2 bg-slate-900 text-white rounded-lg font-bold">Retry</button>
+                </div>
+            ) : courses.length === 0 ? (
+                <div className="text-center py-20 bg-white border-4 border-slate-900 rounded-2xl shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
+                    <div className="inline-block p-4 bg-yellow-300 rounded-full border-2 border-slate-900 mb-4">
+                        <svg className="w-8 h-8 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                    </div>
+                    <h3 className="text-2xl font-black text-slate-900">No content yet</h3>
+                    <p className="text-slate-600 mt-2 font-medium">We're just getting started. Check back soon!</p>
+                </div>
+            ) : (
+                /* Pagination Controls & Grid */
+                <div className="relative">
+                    {/* Prev Arrow */}
+                    <button 
+                        onClick={prevPage}
+                        disabled={currentPage === 1}
+                        className={`absolute left-0 top-1/2 -translate-y-1/2 -ml-4 md:-ml-12 z-20 p-4 bg-slate-900 text-white rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-110 hover:bg-blue-600 transition-all disabled:opacity-0 disabled:pointer-events-none`}
+                        aria-label="Previous page"
+                    >
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+
+                    {/* Video Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 px-2 min-h-[500px]">
+                        {currentItems.map((course) => (
+                            <div key={course.id} className="group relative bg-white border-4 border-slate-900 rounded-2xl p-4 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] hover:shadow-[12px_12px_0px_0px_rgba(15,23,42,1)] transition-all duration-200 flex flex-col h-full animate-fade-in-up">
+                                {/* Thumbnail */}
+                                <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-slate-900 mb-5 group-hover:grayscale-[20%] transition-all shrink-0">
+                                    <img 
+                                        src={course.thumbnail || "https://via.placeholder.com/640x360?text=No+Thumbnail"} 
+                                        alt={course.title} 
+                                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <div className="h-14 w-14 bg-red-600 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] group-hover:scale-110 transition-transform">
+                                            <svg className="h-6 w-6 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M8 5v14l11-7z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Details */}
+                                <div className="flex flex-col flex-1 justify-between">
+                                    <div>
+                                        <h3 className="text-2xl font-black text-slate-900 mb-4 leading-tight line-clamp-3">
+                                            {course.title}
+                                        </h3>
+                                    </div>
+                                    
+                                    <a 
+                                        href={course.url} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="w-full block text-center bg-slate-900 text-white font-black py-3 px-4 rounded-xl border-2 border-transparent hover:bg-white hover:text-slate-900 hover:border-slate-900 transition-all uppercase tracking-wide relative z-20 active:scale-95 active:shadow-inner"
+                                    >
+                                        Watch Video
+                                    </a>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Next Arrow */}
+                    <button 
+                        onClick={nextPage}
+                        disabled={currentPage === totalPages}
+                        className={`absolute right-0 top-1/2 -translate-y-1/2 -mr-4 md:-mr-12 z-20 p-4 bg-slate-900 text-white rounded-full shadow-[4px_4px_0px_0px_rgba(0,0,0,0.3)] border-2 border-white hover:scale-110 hover:bg-blue-600 transition-all disabled:opacity-0 disabled:pointer-events-none`}
+                        aria-label="Next page"
+                    >
+                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            )}
+
+            {/* Brutalist Footer Banner */}
+            <div className="w-full bg-blue-600 border-4 border-slate-900 rounded-2xl p-8 md:p-12 text-center shadow-[10px_10px_0px_0px_rgba(15,23,42,1)] relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
+                <h2 className="text-3xl md:text-5xl font-black text-white mb-4 relative z-10">
+                    MORE CONTENT DROPPING SOON
+                </h2>
+                <p className="text-blue-100 font-bold text-lg md:text-xl relative z-10 max-w-2xl mx-auto">
+                    We update our repository weekly with verified expert advice for the Welfare community.
+                </p>
+            </div>
+
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default ParentingAcademy;

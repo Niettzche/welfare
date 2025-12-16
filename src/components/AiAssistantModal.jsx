@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { io } from 'socket.io-client';
 
-const AiAssistantModal = ({ isOpen, onClose, listings }) => {
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
+const AiAssistantModal = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
     { id: 1, sender: 'ai', text: "Hello! I'm your Welfare School Community AI Assistant. I can help you find the best services for your needs. What are you looking for today?" }
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -16,57 +20,46 @@ const AiAssistantModal = ({ isOpen, onClose, listings }) => {
     scrollToBottom();
   }, [messages, isTyping, isOpen]);
 
-  // Prevent body scroll
+  // Socket Connection Logic
   useEffect(() => {
+    let newSocket;
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        
+        // Initialize Socket
+        newSocket = io(API_BASE);
+        setSocket(newSocket);
+
+        newSocket.on('chat_response', (data) => {
+            const aiMessage = { 
+                id: Date.now(), 
+                sender: 'ai', 
+                text: data.message || "Sorry, I didn't get that." 
+            };
+            setMessages(prev => [...prev, aiMessage]);
+            setIsTyping(false);
+        });
     } else {
-      document.body.style.overflow = 'unset';
+        document.body.style.overflow = 'unset';
     }
+
     return () => {
-      document.body.style.overflow = 'unset';
+        document.body.style.overflow = 'unset';
+        if (newSocket) newSocket.disconnect();
     };
   }, [isOpen]);
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (!inputText.trim()) return;
+    if (!inputText.trim() || !socket) return;
 
     const userMessage = { id: Date.now(), sender: 'user', text: inputText };
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsTyping(true);
 
-    // Simulate AI processing logic
-    setTimeout(() => {
-      let aiResponseText = "I found a few options that might help you.";
-      const lowerInput = userMessage.text.toLowerCase();
-      
-      // Simple keyword matching mock logic
-      let matchedListings = listings.filter(l => 
-        l.title.toLowerCase().includes(lowerInput) || 
-        l.category.toLowerCase().includes(lowerInput) ||
-        l.description.toLowerCase().includes(lowerInput)
-      );
-
-      if (lowerInput.includes('recommend') || lowerInput.includes('best') || lowerInput.includes('suggest')) {
-         if (matchedListings.length > 0) {
-             const topPick = matchedListings[0];
-             aiResponseText = `Based on your request, I highly recommend **${topPick.title}**. They specialize in ${topPick.category} and are very popular in our community.`;
-         } else {
-             aiResponseText = "I'm not sure which specific business fits that description, but I can recommend checking out our top-rated services like **Apex Dental Care** or **Little Coders Academy** depending on your needs.";
-         }
-      } else if (matchedListings.length > 0) {
-          const names = matchedListings.map(l => l.title).join(', ');
-          aiResponseText = `I found these businesses matching "${userMessage.text}": **${names}**. Would you like to know more about any of them?`;
-      } else {
-          aiResponseText = "I couldn't find an exact match for that, but you can browse our directory by category. Can I help you with anything else?";
-      }
-
-      const aiMessage = { id: Date.now() + 1, sender: 'ai', text: aiResponseText };
-      setMessages(prev => [...prev, aiMessage]);
-      setIsTyping(false);
-    }, 1500);
+    // Emit to Backend
+    socket.emit('chat_message', { message: inputText });
   };
 
   return (
@@ -84,14 +77,14 @@ const AiAssistantModal = ({ isOpen, onClose, listings }) => {
         <div className="bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-4 flex items-center justify-between shrink-0 shadow-md z-10">
             <div className="flex items-center space-x-3">
                 <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-md border border-white/30 shadow-inner relative">
-                    <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-green-400 border-2 border-indigo-600"></span>
+                    <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-indigo-600 ${socket?.connected ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
                     <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                     </svg>
                 </div>
                 <div>
                     <h3 className="text-white font-bold text-lg leading-tight">Welfare AI</h3>
-                    <p className="text-indigo-100 text-xs font-medium opacity-90">Always here to help</p>
+                    <p className="text-indigo-100 text-xs font-medium opacity-90">Powered by Live Data</p>
                 </div>
             </div>
             <button onClick={onClose} className="text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2">
@@ -111,7 +104,7 @@ const AiAssistantModal = ({ isOpen, onClose, listings }) => {
                         ? 'bg-indigo-600 text-white rounded-br-none' 
                         : 'bg-white text-slate-800 border border-slate-100 rounded-bl-none'
                     }`}>
-                        <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}></p>
+                        <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }}></p>
                     </div>
                 </div>
             ))}
@@ -135,13 +128,13 @@ const AiAssistantModal = ({ isOpen, onClose, listings }) => {
                         type="text"
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
-                        placeholder="Ask for a recommendation..."
+                        placeholder="Ask about a service..."
                         className="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm text-slate-700 placeholder-slate-400"
                     />
                 </div>
                 <button 
                     type="submit"
-                    disabled={!inputText.trim() || isTyping}
+                    disabled={!inputText.trim() || isTyping || !socket}
                     className="p-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
                 >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -150,7 +143,7 @@ const AiAssistantModal = ({ isOpen, onClose, listings }) => {
                 </button>
             </form>
             <p className="text-center text-[10px] text-slate-400 mt-2">
-                AI can make mistakes. Consider checking important information.
+                Welfare AI can make mistakes. Consider checking important information.
             </p>
         </div>
 

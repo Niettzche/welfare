@@ -7,6 +7,8 @@ import Preloader from '../components/Preloader';
 import ListingDetailModal from '../components/ListingDetailModal';
 import AiAssistantModal from '../components/AiAssistantModal';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
 const getCategoryIcon = (category) => {
   switch (category) {
     case 'Health & Wellness':
@@ -184,16 +186,54 @@ const mockListings = [
 
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [listings, setListings] = useState([]);
+  const [error, setError] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/businesses?limit=200`);
+        if (!res.ok) {
+          throw new Error('Failed to fetch listings');
+        }
+        const data = await res.json();
+        const normalized = (data || []).map((item, idx) => ({
+          id: item.id || idx,
+          title: item.business_name || item.title || 'Untitled',
+          category: item.category || 'Other',
+          subCategory: item.subCategory,
+          description: item.description || '',
+          imageUrl: item.logo_url || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
+          delay: '',
+          surname: item.surname || '',
+          email: item.show_email ? item.email : undefined,
+          phone: item.show_phone ? item.phone : undefined,
+          website: item.website || undefined,
+          discount: item.discount,
+          tags: item.tags || [],
+        }));
+        setListings(normalized);
+      } catch (err) {
+        setError('No se pudo conectar al servidor. Vuelve a intentarlo más tarde.');
+        setListings([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCategories]);
+  }, [selectedCategories, searchQuery]);
 
   const handleCategoryChange = (category) => {
     if (category === 'RESET') {
@@ -209,14 +249,22 @@ function Home() {
     }
   };
 
-  // 1. Filter
-  const filteredListings = selectedCategories.length > 0 
-    ? mockListings.filter(item => selectedCategories.includes(item.category))
-    : mockListings;
+  const dataListings = listings.length > 0 ? listings : mockListings;
+
+  // Filter Logic
+  const filteredListings = dataListings.filter(item => {
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(item.category);
+    const matchesSearch = searchQuery === "" || 
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchQuery.toLowerCase());
+        
+    return matchesCategory && matchesSearch;
+  });
 
   // 2. Paginate
   const itemsPerPage = 6;
-  const totalPages = Math.ceil(filteredListings.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(filteredListings.length / itemsPerPage));
   const currentListings = filteredListings.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -226,82 +274,107 @@ function Home() {
     return <Preloader onFinish={() => setIsLoading(false)} />;
   }
 
+
   return (
     <>
     <Layout>
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        onClose={() => setIsSidebarOpen(false)} 
-        onOpenAi={() => {
-            setIsSidebarOpen(false); // Close mobile sidebar if open
-            setIsAiModalOpen(true);
-        }}
-        selectedCategories={selectedCategories}
-        onCategoryChange={handleCategoryChange}
-      />
-      <section className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
-        
-        {/* Header Area */}
-        <div className="p-6 lg:p-8 pb-4 shrink-0 bg-slate-50 z-10">
-          <div className="md:hidden mb-4 space-y-4">
-            <div className="relative">
-              <input type="text" className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-welfare-blue sm:text-sm" placeholder="Search..." />
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+      <div className="flex flex-col flex-1 w-full">
+        <div className="flex flex-1">
+          <Sidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+            onOpenAi={() => {
+                setIsSidebarOpen(false); // Close mobile sidebar if open
+                setIsAiModalOpen(true);
+            }}
+            selectedCategories={selectedCategories}
+            onCategoryChange={handleCategoryChange}
+            searchQuery={searchQuery}
+            onSearch={setSearchQuery}
+          />
+
+          <section className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
+            
+            {/* Header Area */}
+            <div className="p-6 lg:p-8 pb-4 shrink-0 bg-slate-50 z-10">
+              <div className="md:hidden mb-4 space-y-4">
+                <div className="relative">
+                  <input type="text" className="block w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg bg-white focus:ring-1 focus:ring-welfare-blue sm:text-sm" placeholder="Search..." />
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg className="h-5 w-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50"
+                >
+                  <svg className="mr-2 h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                  Filters
+                </button>
               </div>
             </div>
-            <button 
-              onClick={() => setIsSidebarOpen(true)}
-              className="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50"
-            >
-              <svg className="mr-2 h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-              Filters
-            </button>
-          </div>
-        </div>
 
-        {/* Scrollable Grid Area */}
-        <div className="flex-1 overflow-y-auto px-6 lg:px-8 pb-6 custom-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
-            {currentListings.length > 0 ? (
-                currentListings.map((listing) => (
-                  <ListingCard
-                    key={listing.id}
-                    {...listing}
-                    icon={<svg className="h-8 w-8 text-welfare-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">{getCategoryIcon(listing.category)}</svg>}
-                    onContact={() => setSelectedListing(listing)}
-                  />
-                ))
-            ) : (
-                <div className="col-span-full py-12 text-center text-slate-500">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
-                        <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+            {/* Scrollable Grid Area */}
+            <div className="flex-1 overflow-y-auto px-6 lg:px-8 pb-6 custom-scrollbar">
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-start">
+                {error ? (
+                  <div className="col-span-full py-12 text-center text-slate-500 animate-fade-in-up">
+                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-rose-50 text-rose-500 mb-4 shadow-inner animate-bounce">
+                      <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a1 1 0 00.86 1.5h18.64a1 1 0 00.86-1.5L13.71 3.86a1 1 0 00-1.72 0z" />
+                      </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-slate-900">No businesses found</h3>
-                    <p className="mt-1">Try adjusting your filters or search criteria.</p>
+                    <h3 className="text-lg font-medium text-slate-900">No se pudo conectar al servidor</h3>
+                    <p className="mt-1">:( Vuelve a intentarlo más tarde.</p>
                     <button 
-                      onClick={() => setSelectedCategories([])}
-                      className="mt-4 text-welfare-blue hover:underline font-medium"
+                      onClick={() => window.location.reload()}
+                      className="mt-4 inline-flex items-center px-4 py-2 rounded-lg bg-welfare-blue text-white font-semibold hover:bg-welfare-hover transition-colors"
                     >
-                      Clear all filters
+                      Reintentar
                     </button>
-                </div>
-            )}
-          </div>
+                  </div>
+                ) : currentListings.length > 0 ? (
+                    currentListings.map((listing) => (
+                      <ListingCard
+                        key={listing.id}
+                        {...listing}
+                        icon={<svg className="h-8 w-8 text-welfare-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">{getCategoryIcon(listing.category)}</svg>}
+                        onContact={() => setSelectedListing(listing)}
+                      />
+                    ))
+                ) : (
+                    <div className="col-span-full py-12 text-center text-slate-500">
+                        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 mb-4">
+                            <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-medium text-slate-900">No businesses found</h3>
+                        <p className="mt-1">Try adjusting your filters or search criteria.</p>
+                        <button 
+                          onClick={() => setSelectedCategories([])}
+                          className="mt-4 text-welfare-blue hover:underline font-medium"
+                        >
+                          Clear all filters
+                        </button>
+                    </div>
+                )}
+              </div>
+            </div>
+
+            {/* Sticky Pagination Footer */}
+            <div className="shrink-0 bg-white border-t border-slate-200 z-20">
+              <Pagination 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+
+          </section>
         </div>
 
-        {/* Sticky Pagination Footer */}
-        <div className="shrink-0 bg-white border-t border-slate-200 z-20">
-          <Pagination 
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
-        </div>
-
-      </section>
+      </div>
     </Layout>
     
     <ListingDetailModal 
@@ -313,8 +386,14 @@ function Home() {
     <AiAssistantModal 
        isOpen={isAiModalOpen}
        onClose={() => setIsAiModalOpen(false)}
-       listings={mockListings}
+       listings={dataListings}
     />
+
+    <footer className="bg-white border-t border-slate-200 py-6 px-6 lg:px-8 text-center text-sm text-slate-500">
+      Desarrollado por Master Creators · 
+      <a href="mailto:contacto@mastercreators.work" className="underline hover:text-slate-700 ml-1">contacto@mastercreators.work</a> · 
+      <a href="https://mastercreators.work/" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 ml-1">mastercreators.work</a>
+    </footer>
   </>
   );
 }

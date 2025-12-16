@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS videos;
+
+CREATE TABLE videos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    url TEXT NOT NULL,
+    title TEXT,
+    thumbnail_url TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
