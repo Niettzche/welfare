@@ -415,4 +415,5 @@ def serve_upload(filename):
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5001"))
-    socketio.run(app, host="0.0.0.0", port=port, debug=True, allow_unsafe_werkzeug=True)
+    is_debug = os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    socketio.run(app, host="0.0.0.0", port=port, debug=is_debug)
