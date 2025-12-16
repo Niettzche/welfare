@@ -40,150 +40,6 @@ const getCategoryIcon = (category) => {
   }
 };
 
-const mockListings = [
-  {
-    id: 1,
-    title: "Apex Dental Care",
-    category: "Health & Wellness",
-    subCategory: "Dental",
-    description: "Comprehensive dental care for the whole family, specializing in pediatric dentistry and orthodontics.",
-    imageUrl: "https://images.unsplash.com/photo-1606811841689-230391b3d3d6?auto=format&fit=crop&w=800&q=80",
-    delay: "",
-    surname: "Dr. Patel Family",
-    email: "info@apexdental.com",
-    phone: "(555) 123-4567"
-  },
-  {
-    id: 2,
-    title: "CodeWizards Academy",
-    category: "Technology & IT",
-    subCategory: "Education",
-    description: "Coding bootcamps and robotics workshops designed to inspire the next generation of tech leaders.",
-    imageUrl: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-100",
-    surname: "The Chen Family",
-    website: "https://codewizards.edu"
-  },
-  {
-    id: 3,
-    title: "GreenLeaf Market",
-    category: "Retail & Shopping",
-    subCategory: "Groceries",
-    description: "Your local source for organic produce, eco-friendly household goods, and bulk pantry staples.",
-    imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-200",
-    surname: "Garcia-Lopez Family"
-  },
-  {
-    id: 4,
-    title: "BuildRight Construction",
-    category: "Construction & Trades",
-    subCategory: "Renovation",
-    description: "Reliable home renovations and general contracting. We turn your vision into reality with quality craftsmanship.",
-    imageUrl: "https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-300"
-  },
-  {
-    id: 5,
-    title: "Welfare Automotive",
-    category: "Automotive",
-    subCategory: "Repair",
-    description: "Trusted auto repair and maintenance. ASE certified mechanics ready to keep your vehicle running smoothly.",
-    imageUrl: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-400"
-  },
-  {
-    id: 6,
-    title: "Prime Estates",
-    category: "Real Estate",
-    subCategory: "Agency",
-    description: "Helping families find their dream homes in the Welfare school district. Expert local market knowledge.",
-    imageUrl: "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80",
-    delay: ""
-  },
-  {
-    id: 7,
-    title: "SecureFuture Financial",
-    category: "Finance & Insurance",
-    subCategory: "Planning",
-    description: "Personalized financial planning and insurance solutions to protect what matters most to you.",
-    imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-100"
-  },
-  {
-    id: 8,
-    title: "Legal Eagles LLP",
-    category: "Legal Services",
-    subCategory: "Family Law",
-    description: "Compassionate legal representation for family law, estate planning, and small business support.",
-    imageUrl: "https://images.unsplash.com/photo-1589829085413-56de8ae18c73?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-200"
-  },
-  {
-    id: 9,
-    title: "Glow Beauty Studio",
-    category: "Personal Care & Beauty",
-    subCategory: "Salon",
-    description: "A full-service salon offering hair, nails, and skincare treatments in a relaxing and modern environment.",
-    imageUrl: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-300"
-  },
-  {
-    id: 10,
-    title: "EventHorizon Planners",
-    category: "Entertainment & Events",
-    subCategory: "Party Planning",
-    description: "Creating unforgettable experiences for birthdays, weddings, and community gatherings.",
-    imageUrl: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-400"
-  },
-  {
-    id: 11,
-    title: "Wanderlust Travels",
-    category: "Travel & Tourism",
-    subCategory: "Agency",
-    description: "Curated travel packages for families and individuals. Explore the world with confidence and ease.",
-    imageUrl: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80",
-    delay: ""
-  },
-  {
-    id: 12,
-    title: "Harvest Moon Farms",
-    category: "Agriculture & Farming",
-    subCategory: "Local Produce",
-    description: "Providing fresh, locally grown fruits and vegetables directly to the community through our CSA program.",
-    imageUrl: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-100"
-  },
-  {
-    id: 13,
-    title: "Community Hearts",
-    category: "Non-Profit",
-    subCategory: "Charity",
-    description: "Dedicated to supporting underprivileged families with food, clothing, and educational resources.",
-    imageUrl: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-200"
-  },
-  {
-    id: 14,
-    title: "Precision Machining",
-    category: "Manufacturing & Industry",
-    subCategory: "Fabrication",
-    description: "Custom metal fabrication and CNC machining services for industrial and hobbyist projects.",
-    imageUrl: "https://images.unsplash.com/photo-1565043666747-69f6646db940?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-300"
-  },
-  {
-    id: 15,
-    title: "Canvas & Clay",
-    category: "Creative & Arts",
-    subCategory: "Studio",
-    description: "Art classes for all ages, gallery space for local artists, and custom commissioned artwork.",
-    imageUrl: "https://images.unsplash.com/photo-1460661611742-ad04cd72b761?auto=format&fit=crop&w=800&q=80",
-    delay: "delay-400"
-  }
-];
-
 function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [listings, setListings] = useState([]);
@@ -249,7 +105,7 @@ function Home() {
     }
   };
 
-  const dataListings = listings.length > 0 ? listings : mockListings;
+  const dataListings = listings;
 
   // Filter Logic
   const filteredListings = dataListings.filter(item => {
@@ -261,37 +117,6 @@ function Home() {
         
     return matchesCategory && matchesSearch;
   });
-
-  // 2. Paginate
-  const itemsPerPage = 6;
-  const totalPages = Math.max(1, Math.ceil(filteredListings.length / itemsPerPage));
-  const currentListings = filteredListings.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  if (isLoading) {
-    return <Preloader onFinish={() => setIsLoading(false)} />;
-  }
-
-
-  return (
-    <>
-    <Layout>
-      <div className="flex flex-col flex-1 w-full">
-        <div className="flex flex-1">
-          <Sidebar 
-            isOpen={isSidebarOpen} 
-            onClose={() => setIsSidebarOpen(false)} 
-            onOpenAi={() => {
-                setIsSidebarOpen(false); // Close mobile sidebar if open
-                setIsAiModalOpen(true);
-            }}
-            selectedCategories={selectedCategories}
-            onCategoryChange={handleCategoryChange}
-            searchQuery={searchQuery}
-            onSearch={setSearchQuery}
-          />
 
           <section className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
             
