@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 
-
 const SidebarContent = ({ categories, selectedCategories, onCategoryChange, onOpenAi, onSearch, searchQuery }) => {
   return (
     <>

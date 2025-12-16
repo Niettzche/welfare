@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+import { SOCKET_URL } from '../config';
 
 const AiAssistantModal = ({ isOpen, onClose }) => {
   const [messages, setMessages] = useState([
@@ -27,7 +27,7 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
         document.body.style.overflow = 'hidden';
         
         // Initialize Socket
-        newSocket = io(API_BASE);
+        newSocket = io(SOCKET_URL);
         setSocket(newSocket);
 
         newSocket.on('chat_response', (data) => {

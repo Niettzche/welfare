@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Preloader from '../components/Preloader';
 import logo from '../assets/logo.png';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+import { API_BASE } from '../config';
 
 const RegisterBusiness = () => {
   const navigate = useNavigate();

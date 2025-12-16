@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import Preloader from '../components/Preloader';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+import { API_BASE } from '../config';
 
 const ParentingAcademy = () => {
   const [courses, setCourses] = useState([]);

@@ -7,7 +7,7 @@ import Preloader from '../components/Preloader';
 import ListingDetailModal from '../components/ListingDetailModal';
 import AiAssistantModal from '../components/AiAssistantModal';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+import { API_BASE } from '../config';
 
 const getCategoryIcon = (category) => {
   switch (category) {
@@ -75,7 +75,7 @@ function Home() {
           tags: item.tags || [],
         }));
         setListings(normalized);
-      } catch (err) {
+      } catch {
         setError('No se pudo conectar al servidor. Vuelve a intentarlo más tarde.');
         setListings([]);
       } finally {
@@ -117,6 +117,37 @@ function Home() {
         
     return matchesCategory && matchesSearch;
   });
+
+  // 2. Paginate
+  const itemsPerPage = 6;
+  const totalPages = Math.max(1, Math.ceil(filteredListings.length / itemsPerPage));
+  const currentListings = filteredListings.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  if (isLoading) {
+    return <Preloader onFinish={() => setIsLoading(false)} />;
+  }
+
+
+  return (
+    <>
+    <Layout>
+      <div className="flex flex-col flex-1 w-full">
+        <div className="flex flex-1">
+          <Sidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+            onOpenAi={() => {
+                setIsSidebarOpen(false); // Close mobile sidebar if open
+                setIsAiModalOpen(true);
+            }}
+            selectedCategories={selectedCategories}
+            onCategoryChange={handleCategoryChange}
+            searchQuery={searchQuery}
+            onSearch={setSearchQuery}
+          />
 
           <section className="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
             
