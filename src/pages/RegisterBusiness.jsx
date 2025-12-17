@@ -955,21 +955,30 @@ const RegisterBusiness = () => {
                             </div>
                         )}
 
-	                        <div className="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between">
-	                            {step > 1 ? (
-	                                <button type="button" onClick={handleBack} className="px-6 py-3 rounded-xl text-slate-500 hover:bg-slate-100 font-semibold transition-colors">{t('register.actions.back')}</button>
-	                            ) : <div></div>}
+                        <div className="pt-6 mt-4 border-t border-slate-100 flex items-center justify-between">
+                            {step > 1 ? (
+                                <button type="button" onClick={handleBack} className="px-6 py-3 rounded-xl text-slate-500 hover:bg-slate-100 font-semibold transition-colors">{t('register.actions.back')}</button>
+                            ) : <div></div>}
 
-	                            {step < totalSteps ? (
-	                                <button type="button" onClick={handleNext} className="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
-	                                    {step === 3 ? t('register.actions.optimizeWithAi') : step === 4 ? t('register.actions.preview') : t('register.actions.nextStep')}
-	                                </button>
-	                            ) : (
-	                                <button type="submit" disabled={isSubmitting || !hasAcceptedTerms} className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${isSubmitting || !hasAcceptedTerms ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}>
-	                                    {isSubmitting ? t('register.actions.submitting') : t('register.actions.submit')}
-	                                </button>
-	                            )}
-	                        </div>
+                            {step < totalSteps ? (
+                                <button
+                                    type="button"
+                                    onClick={handleNext}
+                                    disabled={isGeneratingCover}
+                                    className={`px-8 py-3 rounded-xl font-bold shadow-lg transition-all ${
+                                        isGeneratingCover
+                                            ? 'bg-slate-300 text-slate-600 cursor-not-allowed'
+                                            : 'bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5'
+                                    }`}
+                                >
+                                    {step === 3 ? t('register.actions.optimizeWithAi') : step === 4 ? t('register.actions.preview') : t('register.actions.nextStep')}
+                                </button>
+                            ) : (
+                                <button type="submit" disabled={isSubmitting || !hasAcceptedTerms} className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${isSubmitting || !hasAcceptedTerms ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}>
+                                    {isSubmitting ? t('register.actions.submitting') : t('register.actions.submit')}
+                                </button>
+                            )}
+                        </div>
                     </form>
                 </div>
             )}
