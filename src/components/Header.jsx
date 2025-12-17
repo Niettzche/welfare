@@ -176,6 +176,27 @@ const Header = () => {
                         </svg>
                       </Link>
 
+                      <a
+                        href="mailto:contacto@mastercreators.work?subject=Actualizar%20o%20eliminar%20mi%20registro&body=Incluye%20el%20nombre%20de%20tu%20negocio%20y%20los%20cambios%20que%20deseas."
+                        onClick={() => setIsMenuOpen(false)}
+                        className="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors shadow-sm">
+                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 12.284 3 6V5z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="text-base font-semibold text-slate-900 group-hover:text-amber-700 transition-colors">Actualizar o eliminar mi registro</div>
+                            <div className="text-xs text-slate-500 mt-0.5">Escríbenos para editar datos o dar de baja tu negocio.</div>
+                          </div>
+                        </div>
+                        <svg className="h-4 w-4 text-slate-300 group-hover:text-amber-700 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </a>
+
                       <Link
                         to="/parenting-academy"
                         onClick={() => setIsMenuOpen(false)}

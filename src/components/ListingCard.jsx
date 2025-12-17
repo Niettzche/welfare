@@ -28,11 +28,11 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
 
         {/* Floating Logo/Icon */}
         <div className="absolute top-32 left-6 p-1 z-20">
-          <div className="relative h-16 w-16 rounded-full bg-slate-900 flex items-center justify-center border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)] group-hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] group-hover:border-cyan-400/50 transition-all duration-300 overflow-hidden">
+          <div className="relative h-16 w-16 rounded-full bg-white flex items-center justify-center border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)] group-hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] group-hover:border-cyan-400/50 transition-all duration-300 overflow-hidden">
              {logoUrl ? (
                <img src={logoUrl} alt={`${title} logo`} className="h-full w-full object-cover rounded-full" />
              ) : (
-               <div className="text-cyan-400 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
+               <div className="text-cyan-500 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
                  {icon}
                </div>
              )}

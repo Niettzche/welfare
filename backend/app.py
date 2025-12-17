@@ -29,7 +29,7 @@ OPENAI_IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "dall-e-3")
 OPENAI_IMAGE_SIZE = os.getenv("OPENAI_IMAGE_SIZE", "1792x1024")
 openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
-ALLOWED_DISCOUNTS = {"5%", "10%", "15%", "20%", "25%", "30%", "40%", "50%"}
+ALLOWED_DISCOUNTS = {"N/A", "5%", "10%", "15%", "20%", "25%", "30%", "40%", "50%"}
 ALLOWED_IMAGE_EXT = {"png", "jpg", "jpeg"}
 MAX_IMAGE_BYTES = 5 * 1024 * 1024
 SKIP_DB_WRITE = os.getenv("SKIP_DB_WRITE", "").lower() in {"1", "true", "yes"}
@@ -316,21 +316,25 @@ def generate_cover():
         return jsonify({"error": "OPENAI_API_KEY is not configured"}), 500
 
     data = request.get_json(silent=True) or {}
+    custom_prompt = sanitize_text(data.get("prompt", ""), 800)
     business_name = sanitize_text(data.get("business_name", ""), 160)
     category = sanitize_text(data.get("category", ""), 120)
     description = sanitize_text(data.get("description", ""), 500)
 
-    if not business_name and not category and not description:
-        return jsonify({"error": "Provide at least one of: business_name, category, description"}), 400
+    if not business_name and not category and not description and not custom_prompt:
+        return jsonify({"error": "Provide at least one of: business_name, category, description or prompt"}), 400
 
-    prompt = (
-        "Create a clean, modern, professional cover image for a community business directory listing. "
-        "Landscape, high quality, well-lit, minimal, friendly. "
-        "No text, no logos, no watermarks. "
-        f"Business name: {business_name or 'N/A'}. "
-        f"Category: {category or 'N/A'}. "
-        f"Description: {description or 'N/A'}."
-    )
+    if custom_prompt:
+        prompt = f"{custom_prompt} (Landscape, high quality, no text or logos, professional tone.)"
+    else:
+        prompt = (
+            "Create a clean, modern, professional cover image for a community business directory listing. "
+            "Landscape, high quality, well-lit, minimal, friendly. "
+            "No text, no logos, no watermarks. "
+            f"Business name: {business_name or 'N/A'}. "
+            f"Category: {category or 'N/A'}. "
+            f"Description: {description or 'N/A'}."
+        )
 
     try:
         result = openai_client.images.generate(

@@ -1,25 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import logo from '../assets/logo.png';
 
-const Preloader = ({ onFinish, title = "Welfare", subtitle = "Empowering minds, bodies and hearts." }) => {
+const Preloader = ({ 
+  onFinish, 
+  title = "Welfare", 
+  subtitle = "Empowering minds, bodies and hearts.",
+  exitDelayMs = 2800,
+  finishDelayMs = 3600
+}) => {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
     // Start exit animation
     const timer = setTimeout(() => {
       setExiting(true);
-    }, 2800);
+    }, exitDelayMs);
 
     // Unmount
     const cleanup = setTimeout(() => {
       onFinish();
-    }, 3600); 
+    }, finishDelayMs); 
 
     return () => {
       clearTimeout(timer);
       clearTimeout(cleanup);
     };
-  }, [onFinish]);
+  }, [onFinish, exitDelayMs, finishDelayMs]);
 
   return (
     <div className={`preloader-container fixed inset-0 z-[100] flex items-center justify-center bg-welfare-blue overflow-hidden transition-all duration-1000 ease-in-out ${exiting ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100'}`}>

@@ -81,7 +81,28 @@ function Home() {
                 try { return JSON.parse(item.tags); } catch { return []; }
               })() : []),
         }));
-        setListings(normalized);
+        const masters = [];
+        const others = [];
+        normalized.forEach(item => {
+          const isMaster = (item.title || '').toLowerCase().includes('master creators');
+          if (isMaster) {
+            masters.push(item);
+          } else {
+            others.push(item);
+          }
+        });
+        const shuffledOthers = [...others].sort(() => Math.random() - 0.5);
+        const result = [];
+        const topMasters = masters.slice(0, 3);
+        result.push(...topMasters);
+        const remainingSlots = Math.max(0, 3 - result.length);
+        if (remainingSlots > 0) {
+          result.push(...shuffledOthers.splice(0, remainingSlots));
+        }
+        const remainingMasters = masters.slice(3);
+        result.push(...remainingMasters);
+        result.push(...shuffledOthers);
+        setListings(result);
       } catch {
         setError('No se pudo conectar al servidor. Vuelve a intentarlo más tarde.');
         setListings([]);

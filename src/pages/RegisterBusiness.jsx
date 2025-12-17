@@ -37,6 +37,8 @@ const RegisterBusiness = () => {
   const [useAiCover, setUseAiCover] = useState(true);
   const [isGeneratingCover, setIsGeneratingCover] = useState(false);
   const [aiCoverUrl, setAiCoverUrl] = useState(null);
+  const [aiCoverPrompt, setAiCoverPrompt] = useState('');
+  const [hasCustomCoverPrompt, setHasCustomCoverPrompt] = useState(false);
   
   // Tag adding state
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -59,6 +61,12 @@ const RegisterBusiness = () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
+
+  useEffect(() => {
+    if (hasCustomCoverPrompt) return;
+    const basePrompt = `Cover image for "${formData.businessName || 'Community Business'}" - category: ${formData.category || 'General'}. ${formData.description || 'Clean, welcoming and professional tone.'}`;
+    setAiCoverPrompt(basePrompt);
+  }, [formData.businessName, formData.category, formData.description, hasCustomCoverPrompt]);
 
   const totalSteps = 5;
 
@@ -118,18 +126,18 @@ const RegisterBusiness = () => {
     }
 
     if (step === 2) {
-        if (!formData.discount) {
-            setFormError(t('register.errors.selectDiscount'));
-            return;
-        }
+        const missing = [];
+        if (!formData.discount) missing.push('descuento');
+        if (!formData.description) missing.push('descripción');
+
         const site = formData.website.trim();
         const hasWebsite = site && site !== 'https://' && site !== 'http://';
         if (hasWebsite && !/^https?:\/\/[^.\s]+\.[^\s]+/i.test(site)) {
             setFormError(t('register.errors.validWebsite'));
             return;
         }
-        if (!formData.description) {
-            setFormError(t('register.errors.provideDescription'));
+        if (missing.length) {
+            setFormError(`Falta completar: ${missing.join(', ')}`);
             return;
         }
     }
@@ -342,6 +350,8 @@ const RegisterBusiness = () => {
     setFormError('');
     setUseAiCover(true);
     setAiCoverUrl(null);
+    setAiCoverPrompt('');
+    setHasCustomCoverPrompt(false);
   };
 
   const handleImageUpload = (e) => {
@@ -358,9 +368,22 @@ const RegisterBusiness = () => {
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const previewUrl = URL.createObjectURL(file);
-    setLogoPreview(previewUrl);
-    setFormData(prev => ({ ...prev, logoFile: file }));
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        if (img.width < 512 || img.height < 512) {
+          setFormError('El logo debe ser mínimo 512x512.');
+          return;
+        }
+        const previewUrl = URL.createObjectURL(file);
+        setLogoPreview(previewUrl);
+        setFormError('');
+        setFormData(prev => ({ ...prev, logoFile: file }));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleUseAiCoverChange = (e) => {
@@ -381,6 +404,7 @@ const RegisterBusiness = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          prompt: aiCoverPrompt,
           business_name: formData.businessName,
           category: formData.category,
           description: formData.description,
@@ -403,9 +427,22 @@ const RegisterBusiness = () => {
   const handleCoverUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const previewUrl = URL.createObjectURL(file);
-    setCoverPreview(previewUrl);
-    setFormData(prev => ({ ...prev, coverFile: file }));
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        if (img.width < 1200 || img.height < 675) {
+          setFormError('La portada debe ser al menos 1200x675 (recomendado 1792x1024).');
+          return;
+        }
+        const previewUrl = URL.createObjectURL(file);
+        setCoverPreview(previewUrl);
+        setFormError('');
+        setFormData(prev => ({ ...prev, coverFile: file }));
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleAddTag = () => {
@@ -551,6 +588,8 @@ const RegisterBusiness = () => {
                     resetForm();
                     navigate('/');
                   }} 
+                  exitDelayMs={1400}
+                  finishDelayMs={2000}
                   title={t('register.successTitle')}
                   subtitle={t('register.successSubtitle')}
                 />
@@ -709,6 +748,7 @@ const RegisterBusiness = () => {
                                         className="block w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 px-4 bg-slate-50 focus:bg-white transition-all"
                                     >
 	                                        <option value="">{t('register.fields.discountPlaceholder')}</option>
+	                                        <option value="N/A">Sin descuento</option>
 	                                        <option value="5%">{t('register.fields.discountOption', { pct: 5 })}</option>
 	                                        <option value="10%">{t('register.fields.discountOption', { pct: 10 })}</option>
 	                                        <option value="15%">{t('register.fields.discountOption', { pct: 15 })}</option>
@@ -747,42 +787,9 @@ const RegisterBusiness = () => {
 	                                    <p className="text-sm text-slate-600 mt-2">
 	                                        {t('register.fields.visualsSubtitle')}
 	                                    </p>
+                                        <p className="text-xs text-slate-500 mt-1">Recomendado: logo cuadrado mínimo 512x512; portada horizontal 1792x1024.</p>
 	                                </div>
 
-                                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                    <div>
-	                                        <p className="text-sm font-semibold text-slate-900">{t('register.fields.aiCoverToggleTitle')}</p>
-	                                        <p className="text-xs text-slate-500 mt-0.5">{t('register.fields.aiCoverToggleDesc')}</p>
-                                    </div>
-                                    <label className="inline-flex items-center cursor-pointer select-none">
-                                        <input
-                                            type="checkbox"
-                                            checked={useAiCover}
-                                            onChange={handleUseAiCoverChange}
-                                            className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                    </label>
-                                </div>
-
-                                {useAiCover && (
-                                    <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4">
-	                                        <div>
-	                                            <p className="text-sm font-semibold text-slate-900">{t('register.fields.aiCoverTitle')}</p>
-	                                            <p className="text-xs text-slate-500 mt-0.5">{t('register.fields.aiCoverDesc')}</p>
-	                                        </div>
-                                        <button
-                                            type="button"
-                                            onClick={generateCoverWithAi}
-                                            disabled={isGeneratingCover || !formData.businessName || !formData.category || !formData.description}
-                                            className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-	                                            {isGeneratingCover
-	                                              ? t('register.fields.aiCoverGenerating')
-	                                              : (coverPreview ? t('register.fields.aiCoverRegenerate') : t('register.fields.aiCoverGenerate'))}
-	                                        </button>
-	                                    </div>
-	                                )}
-                                
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 	                                    {/* Logo Upload */}
 	                                    <div className="space-y-3">
@@ -811,7 +818,7 @@ const RegisterBusiness = () => {
                                                     </div>
 	                                                    <p className="text-sm font-semibold text-slate-700">{t('register.fields.logoCta')}</p>
 	                                                    <p className="text-xs text-slate-400 mt-1">{t('register.fields.logoHint')}</p>
-	                                                </div>
+                                                </div>
 	                                            )}
                                             <input type="file" ref={logoInputRef} className="hidden" accept="image/*" onChange={handleLogoUpload} />
                                         </div>
@@ -854,6 +861,53 @@ const RegisterBusiness = () => {
 	                                        )}
 	                                    </div>
 	                                </div>
+
+                                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+                                    <div>
+	                                        <p className="text-sm font-semibold text-slate-900">{t('register.fields.aiCoverToggleTitle')}</p>
+	                                        <p className="text-xs text-slate-500 mt-0.5">{t('register.fields.aiCoverToggleDesc')}</p>
+                                    </div>
+                                    <label className="inline-flex items-center cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={useAiCover}
+                                            onChange={handleUseAiCoverChange}
+                                            className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                    </label>
+                                </div>
+
+                                {useAiCover && (
+                                    <div className="space-y-4 bg-white border border-slate-200 rounded-xl p-4">
+	                                        <div className="flex items-center justify-between">
+	                                            <div>
+	                                                <p className="text-sm font-semibold text-slate-900">{t('register.fields.aiCoverTitle')}</p>
+	                                                <p className="text-xs text-slate-500 mt-0.5">{t('register.fields.aiCoverDesc')}</p>
+                                                    <p className="text-[11px] text-slate-400 mt-1">Recomendado: 1792 x 1024 (horizontal).</p>
+	                                            </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={generateCoverWithAi}
+                                                    disabled={isGeneratingCover || !formData.businessName || !formData.category || !formData.description}
+                                                    className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                >
+	                                                    {isGeneratingCover
+	                                                      ? t('register.fields.aiCoverGenerating')
+	                                                      : (coverPreview ? t('register.fields.aiCoverRegenerate') : t('register.fields.aiCoverGenerate'))}
+	                                                </button>
+	                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-semibold text-slate-700 mb-2">Prompt de la portada (editable)</label>
+                                                <textarea
+                                                  value={aiCoverPrompt}
+                                                  onChange={(e) => { setAiCoverPrompt(e.target.value); setHasCustomCoverPrompt(true); }}
+                                                  rows="3"
+                                                  className="w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500 text-sm p-3 shadow-sm"
+                                                  placeholder="Describe el estilo, colores y ambiente que deseas ver en la portada."
+                                                />
+                                            </div>
+	                                    </div>
+	                                )}
 	                            </div>
 	                        )}
 
@@ -971,7 +1025,7 @@ const RegisterBusiness = () => {
                                             : 'bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5'
                                     }`}
                                 >
-                                    {step === 3 ? t('register.actions.optimizeWithAi') : step === 4 ? t('register.actions.preview') : t('register.actions.nextStep')}
+                                    {step === 3 ? 'Siguiente paso' : step === 4 ? t('register.actions.preview') : t('register.actions.nextStep')}
                                 </button>
                             ) : (
                                 <button type="submit" disabled={isSubmitting || !hasAcceptedTerms} className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${isSubmitting || !hasAcceptedTerms ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}>
