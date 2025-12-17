@@ -4,6 +4,7 @@ import Home from './pages/Home';
 import RegisterBusiness from './pages/RegisterBusiness';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ParentingAcademy from './pages/ParentingAcademy';
+import Ayuda from './pages/Ayuda';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
       <Route path="/register" element={<RegisterBusiness />} />
       <Route path="/privacy" element={<PrivacyPolicy />} />
       <Route path="/parenting-academy" element={<ParentingAcademy />} />
+      <Route path="/ayuda" element={<Ayuda />} />
     </Routes>
   );
 }
