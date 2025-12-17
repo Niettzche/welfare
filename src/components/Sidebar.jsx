@@ -49,7 +49,7 @@ const SidebarContent = ({ categories, selectedCategories, onCategoryChange, onOp
                         onChange={() => onCategoryChange(category)}
                     />
                     <span className={`flex-1 group-hover/item:text-welfare-blue transition-colors ${selectedCategories.includes(category) ? 'text-welfare-blue font-medium' : 'text-slate-900'}`}>
-                        {category}
+                        {category.replace('&', '')}
                     </span>
                 </label>
             ))}
