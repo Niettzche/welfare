@@ -295,23 +295,32 @@ def add_video():
 @app.route("/businesses", methods=["GET"])
 def list_businesses():
     if SKIP_DB_WRITE:
-        return jsonify(mock_businesses()), 200
-    limit = min(int(request.args.get("limit", 50)), 200)
-    with get_conn() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                SELECT id, surname, email, show_email, phone, show_phone,
-                       business_name, category, discount, description, website,
-                       logo_url, tags, status, created_at, updated_at
-                FROM businesses
-                ORDER BY created_at DESC
-                LIMIT %s
-                """,
-                (limit,),
-            )
-            rows = cur.fetchall()
-    return jsonify(rows), 200
+        data = mock_businesses()
+    else:
+        limit = min(int(request.args.get("limit", 50)), 200)
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, surname, email, show_email, phone, show_phone,
+                           business_name, category, discount, description, website,
+                           logo_url, tags, status, created_at, updated_at
+                    FROM businesses
+                    ORDER BY created_at DESC
+                    LIMIT %s
+                    """,
+                    (limit,),
+                )
+                data = cur.fetchall()
+
+    # Filter private info
+    for row in data:
+        if not row.get("show_email"):
+            row["email"] = None
+        if not row.get("show_phone"):
+            row["phone"] = None
+
+    return jsonify(data), 200
 
 
 @app.route("/businesses", methods=["POST"])

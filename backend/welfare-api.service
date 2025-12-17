@@ -1,0 +1,35 @@
+[Unit]
+Description=Gunicorn instance to serve Welfare API
+After=network.target
+
+[Service]
+# --- USUARIO SEGURO ---
+# Usamos www-data para que los archivos creados (imágenes)
+# sean propiedad del mismo usuario que usa Nginx.
+User=www-data
+Group=www-data
+
+# --- DIRECTORIOS ---
+WorkingDirectory=/opt/projects/welfare-api
+
+# --- ENTORNO ---
+# Apuntamos al binario de Python dentro de tu entorno virtual
+Environment="PATH=/opt/projects/welfare-api/venv/bin:/usr/local/bin:/usr/bin:/bin"
+# Define producción
+Environment="FLASK_ENV=production"
+# Carga tus variables de entorno (.env)
+EnvironmentFile=/opt/projects/welfare-api/backend/.env
+
+# --- COMANDO DE ARRANQUE ---
+# Gunicorn con eventlet para WebSockets.
+# bind 127.0.0.1:5001 para seguridad (solo accesible localmente o vía Nginx)
+ExecStart=/opt/projects/welfare-api/venv/bin/gunicorn -k eventlet -w 1 --bind 127.0.0.1:5001 app:app
+
+# --- COMPORTAMIENTO ---
+# Reiniciar automáticamente si falla
+Restart=always
+# Esperar un poco antes de reiniciar para no saturar
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
