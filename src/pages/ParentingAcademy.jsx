@@ -11,6 +11,7 @@ const ParentingAcademy = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [errorKey, setErrorKey] = useState('');
+  const [playingId, setPlayingId] = useState(null);
   
   const itemsPerPage = 3; 
   const tagKeys = ['academy.tags.behavior', 'academy.tags.growth', 'academy.tags.health', 'academy.tags.psychology'];
@@ -38,6 +39,19 @@ const ParentingAcademy = () => {
       title: 'Video',
       thumbnail: fallbackThumbs[idx % fallbackThumbs.length],
     };
+  };
+
+  const toEmbedUrl = (url) => {
+    if (!url) return null;
+    try {
+      const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/i);
+      if (ytMatch && ytMatch[1]) {
+        return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0`;
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
   };
 
   useEffect(() => {
@@ -157,20 +171,31 @@ const ParentingAcademy = () => {
                                 style={{ animationDelay: `${idx * 100}ms` }}
                             >
                                 {/* Thumbnail */}
-                                <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-slate-900 mb-5 group-hover:grayscale-[20%] transition-all shrink-0">
-	                                    <img 
-	                                        src={course.thumbnail || t('academy.noThumbnail')} 
-	                                        alt={course.title} 
-	                                        className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out"
-	                                    />
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20">
-                                        <div className="h-16 w-16 bg-red-600 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transform scale-0 group-hover:scale-100 transition-transform duration-300">
-                                            <svg className="h-8 w-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M8 5v14l11-7z" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                    
+                                    <div className="relative aspect-video rounded-xl overflow-hidden border-2 border-slate-900 mb-5 group-hover:grayscale-[20%] transition-all shrink-0">
+                                      {playingId === course.id && toEmbedUrl(course.url) ? (
+                                        <iframe
+                                          title={course.title}
+                                          src={toEmbedUrl(course.url)}
+                                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                          allowFullScreen
+                                          className="w-full h-full"
+                                        />
+                                      ) : (
+                                        <>
+	                                        <img 
+	                                            src={course.thumbnail || t('academy.noThumbnail')} 
+	                                            alt={course.title} 
+	                                            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out"
+	                                        />
+                                          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/20">
+                                            <div className="h-16 w-16 bg-red-600 rounded-full flex items-center justify-center border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transform scale-0 group-hover:scale-100 transition-transform duration-300">
+                                                <svg className="h-8 w-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z" />
+                                                </svg>
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
 	                                    {/* Tag Badge */}
 	                                    <div className={`absolute top-2 left-2 ${course.color || 'bg-blue-300'} border-2 border-slate-900 px-3 py-1 text-xs font-black uppercase tracking-wider transform -rotate-2 group-hover:rotate-0 transition-transform duration-300 shadow-sm`}>
 	                                        {course.tagKey ? t(course.tagKey) : t('academy.tagNew')}
@@ -185,14 +210,19 @@ const ParentingAcademy = () => {
                                         </h3>
                                     </div>
                                     
-	                                    <a 
-	                                        href={course.url} 
-	                                        target="_blank" 
-	                                        rel="noopener noreferrer"
+	                                    <button
+                                          onClick={() => {
+                                            const embed = toEmbedUrl(course.url);
+                                            if (embed) {
+                                              setPlayingId(course.id);
+                                            } else {
+                                              window.open(course.url, '_blank', 'noopener,noreferrer');
+                                            }
+                                          }}
 	                                        className="w-full block text-center bg-slate-900 text-white font-black py-3 px-4 rounded-xl border-2 border-transparent hover:bg-white hover:text-slate-900 hover:border-slate-900 transition-all uppercase tracking-wide relative z-20 active:scale-95 active:shadow-inner hover:shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]"
 	                                    >
 	                                        {t('academy.watchVideo')}
-	                                    </a>
+	                                    </button>
 	                                </div>
 	                            </div>
 	                        ))}
