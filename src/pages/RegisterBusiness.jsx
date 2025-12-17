@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
 import Preloader from '../components/Preloader';
+import ListingCard from '../components/ListingCard';
 import logo from '../assets/logo.png';
 
 import { API_BASE } from '../config';
@@ -12,13 +14,13 @@ const RegisterBusiness = () => {
     surname: '',
     email: '',
     showEmail: false,
-    phone: '',
+    phone: '+52 ',
     showPhone: false,
     businessName: '',
     category: '',
     discount: '',
     description: '',
-    website: '',
+    website: 'https://',
     logoFile: null,
     coverFile: null
   });
@@ -30,6 +32,9 @@ const RegisterBusiness = () => {
   const [formError, setFormError] = useState('');
   const [logoPreview, setLogoPreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
+  const [useAiCover, setUseAiCover] = useState(true);
+  const [isGeneratingCover, setIsGeneratingCover] = useState(false);
+  const [aiCoverUrl, setAiCoverUrl] = useState(null);
   
   // Tag adding state
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -53,7 +58,7 @@ const RegisterBusiness = () => {
     };
   }, []);
 
-  const totalSteps = 4;
+  const totalSteps = 5;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -116,8 +121,9 @@ const RegisterBusiness = () => {
             return;
         }
         const site = formData.website.trim();
-        if (site && !/^https?:\/\//i.test(site)) {
-            setFormError('Please include http:// or https:// in your website URL.');
+        const hasWebsite = site && site !== 'https://' && site !== 'http://';
+        if (hasWebsite && !/^https?:\/\/[^.\s]+\.[^\s]+/i.test(site)) {
+            setFormError('Please enter a valid website URL (e.g. https://example.com).');
             return;
         }
         if (!formData.description) {
@@ -174,14 +180,66 @@ const RegisterBusiness = () => {
     setStep(prev => Math.max(prev - 1, 1));
   };
 
+  const redirectToMissingStep = (message) => {
+    const msg = (message || '').toLowerCase();
+    if (msg.includes('surname') || msg.includes('email') || msg.includes('phone')) return 1;
+    if (msg.includes('business_name') || msg.includes('businessname') || msg.includes('category') || msg.includes('discount') || msg.includes('website')) return 2;
+    if (msg.includes('description')) return 3;
+    return 5;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!hasAcceptedTerms) {
-        setFormError('Please accept the commercial terms to continue.');
+    const isValidEmail = (email) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
+    const isValidPhone = (phone) => /^[\d+\-()\s]{7,20}$/.test(phone);
+    const websiteValue = formData.website.trim();
+    const hasWebsite = websiteValue && websiteValue !== 'https://' && websiteValue !== 'http://';
+
+    // Final guardrails: if something is missing, jump to the step where it belongs.
+    if (!formData.surname.trim()) {
+        setFormError('Please enter your family name.');
+        setStep(1);
         return;
     }
-    if (formData.website && !/^https?:\/\//i.test(formData.website.trim())) {
-        setFormError('Please enter the full website URL including http:// or https://');
+    if (!isValidEmail(formData.email)) {
+        setFormError('Please enter a valid email address.');
+        setStep(1);
+        return;
+    }
+    if (!isValidPhone(formData.phone)) {
+        setFormError('Please enter a valid phone number (7-20 digits, + - ( ) allowed).');
+        setStep(1);
+        return;
+    }
+    if (!formData.businessName.trim() || !formData.category || !formData.discount) {
+        setFormError('Please complete Business Details (name, category, discount).');
+        setStep(2);
+        return;
+    }
+    if (hasWebsite && !/^https?:\/\/[^.\s]+\.[^\s]+/i.test(websiteValue)) {
+        setFormError('Please enter a valid website URL (e.g. https://example.com).');
+        setStep(2);
+        return;
+    }
+    if (!formData.description.trim()) {
+        setFormError('Please provide a description.');
+        setStep(3);
+        return;
+    }
+    if (!aiReviewData) {
+        setFormError('Please generate the AI enhancement first.');
+        setStep(4);
+        return;
+    }
+
+    if (!hasAcceptedTerms) {
+        setFormError('Please accept the commercial terms to continue.');
+        setStep(5);
+        return;
+    }
+    if (hasWebsite && !/^https?:\/\/[^.\s]+\.[^\s]+/i.test(websiteValue)) {
+        setFormError('Please enter a valid website URL (e.g. https://example.com).');
+        setStep(2);
         return;
     }
     setFormError('');
@@ -197,7 +255,7 @@ const RegisterBusiness = () => {
         category: formData.category,
         discount: formData.discount,
         description: (aiReviewData?.optimizedDescription || formData.description).trim(),
-        website: formData.website.trim() || null,
+        website: hasWebsite ? websiteValue : null,
         logo_url: null,
         cover_url: null,
         tags: aiReviewData?.tags || [],
@@ -219,8 +277,10 @@ const RegisterBusiness = () => {
             payload.logo_url = uploadData.logo_url;
         }
 
-        // Reuse logo endpoint for cover for now
-        if (formData.coverFile) {
+        if (useAiCover) {
+            payload.cover_url = aiCoverUrl || coverPreview || aiReviewData?.suggestedImage || null;
+        } else if (formData.coverFile) {
+            // Reuse logo endpoint for cover for now
             const form = new FormData();
             form.append('logo', formData.coverFile);
             const uploadRes = await fetch(`${API_BASE}/upload-logo`, {
@@ -232,7 +292,7 @@ const RegisterBusiness = () => {
                 throw new Error(err.error || 'Error uploading cover.');
             }
             const uploadData = await uploadRes.json();
-            // payload.cover_url = uploadData.logo_url; // If backend supported it
+            payload.cover_url = uploadData.logo_url;
         }
 
         const res = await fetch(`${API_BASE}/businesses`, {
@@ -248,7 +308,9 @@ const RegisterBusiness = () => {
 
         setIsSuccess(true);
     } catch (err) {
-        setFormError(err.message);
+        const msg = err?.message || 'Unable to register business. Please try again.';
+        setFormError(msg);
+        setStep(redirectToMissingStep(msg));
     } finally {
         setIsSubmitting(false);
     }
@@ -262,13 +324,13 @@ const RegisterBusiness = () => {
         surname: '', 
         email: '', 
         showEmail: false, 
-        phone: '', 
+        phone: '+52 ', 
         showPhone: false, 
         businessName: '', 
         category: '', 
-        discount: '', 
+        discount: '',
         description: '', 
-        website: '', 
+        website: 'https://',
         logoFile: null,
         coverFile: null
     });
@@ -276,6 +338,8 @@ const RegisterBusiness = () => {
     setLogoPreview(null);
     setCoverPreview(null);
     setFormError('');
+    setUseAiCover(true);
+    setAiCoverUrl(null);
   };
 
   const handleImageUpload = (e) => {
@@ -295,6 +359,43 @@ const RegisterBusiness = () => {
     const previewUrl = URL.createObjectURL(file);
     setLogoPreview(previewUrl);
     setFormData(prev => ({ ...prev, logoFile: file }));
+  };
+
+  const handleUseAiCoverChange = (e) => {
+    const next = e.target.checked;
+    setUseAiCover(next);
+    if (next) {
+      setCoverPreview(null);
+      setAiCoverUrl(null);
+      setFormData(prev => ({ ...prev, coverFile: null }));
+    }
+  };
+
+  const generateCoverWithAi = async () => {
+    setFormError('');
+    setIsGeneratingCover(true);
+    try {
+      const res = await fetch(`${API_BASE}/ai/generate-cover`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          business_name: formData.businessName,
+          category: formData.category,
+          description: formData.description,
+        })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'No se pudo generar la portada con IA.');
+      }
+      const data = await res.json();
+      setAiCoverUrl(data.cover_url);
+      setCoverPreview(data.cover_url);
+    } catch (err) {
+      setFormError(err.message);
+    } finally {
+      setIsGeneratingCover(false);
+    }
   };
 
   const handleCoverUpload = (e) => {
@@ -339,16 +440,20 @@ const RegisterBusiness = () => {
   ];
 
   if (isGeneratingAi) {
-     return <Preloader 
-      onFinish={() => {}} // No-op, managed by timeout
-      title="AI Optimizing"
-      subtitle="Generating the best profile for you..."
-    />;
+     return (
+      <Layout>
+        <Preloader 
+          onFinish={() => {}} // No-op, managed by timeout
+          title="AI Optimizing"
+          subtitle="Generating the best profile for you..."
+        />
+      </Layout>
+     );
   }
 
   const renderStepIndicator = () => (
     <div className="flex items-center justify-center mb-10">
-      {[1, 2, 3, 4].map((s) => (
+      {[1, 2, 3, 4, 5].map((s) => (
         <React.Fragment key={s}>
           <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
             step === s 
@@ -365,7 +470,7 @@ const RegisterBusiness = () => {
               <span className="font-semibold">{s}</span>
             )}
           </div>
-          {s < 4 && (
+          {s < 5 && (
             <div className={`w-8 sm:w-16 h-1 mx-1 rounded transition-all duration-500 ${
               step > s ? 'bg-green-400' : 'bg-white/20'
             }`}></div>
@@ -376,7 +481,8 @@ const RegisterBusiness = () => {
   );
 
   return (
-    <div className="min-h-screen bg-blue-50 flex flex-col items-center justify-center py-12 relative overflow-hidden font-sans">
+    <Layout>
+    <div className="min-h-full bg-blue-50 flex flex-col items-center justify-center py-12 relative overflow-hidden font-sans w-full">
         
         {/* Dynamic & Interactive Background */}
         <div className="absolute inset-0 z-0 overflow-hidden">
@@ -428,7 +534,7 @@ const RegisterBusiness = () => {
         <section className="w-full max-w-3xl mx-auto px-4 sm:px-6 relative z-10">
             <div className="mb-8 text-center text-white">
                 <h1 className="text-4xl font-black tracking-tight mb-2 drop-shadow-md">
-                    Register Your Business
+                    Register
                 </h1>
                 <p className="text-blue-100 text-lg font-medium">
                     Join the Welfare School network today.
@@ -536,7 +642,7 @@ const RegisterBusiness = () => {
                                     <svg className="w-4 h-4 mr-2 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    <p>We use this information to verify your identity as a parent. You can choose to display different contact details on your public listing later.</p>
+                                    <p>We use this information in case we need your services or if you decide to share it publicly, to help you connect with potential clients.</p>
                                 </div>
                             </div>
                         )}
@@ -584,7 +690,7 @@ const RegisterBusiness = () => {
                                         value={formData.website}
                                         onChange={handleChange}
                                         className="block w-full rounded-xl border-slate-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 py-3 px-4 bg-slate-50 focus:bg-white transition-all"
-                                        placeholder="https://www.example.com"
+                                        placeholder="https://example.com"
                                     />
                                     <p className="text-xs text-slate-500 mt-2">If provided, include the full URL with http:// or https://</p>
                                 </div>
@@ -638,6 +744,38 @@ const RegisterBusiness = () => {
                                         Upload visuals to make your listing attractive.
                                     </p>
                                 </div>
+
+                                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+                                    <div>
+                                        <p className="text-sm font-semibold text-slate-900">Generar portada con IA</p>
+                                        <p className="text-xs text-slate-500 mt-0.5">Usaremos una imagen sugerida automáticamente como portada.</p>
+                                    </div>
+                                    <label className="inline-flex items-center cursor-pointer select-none">
+                                        <input
+                                            type="checkbox"
+                                            checked={useAiCover}
+                                            onChange={handleUseAiCoverChange}
+                                            className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                    </label>
+                                </div>
+
+                                {useAiCover && (
+                                    <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4">
+                                        <div>
+                                            <p className="text-sm font-semibold text-slate-900">Portada (IA)</p>
+                                            <p className="text-xs text-slate-500 mt-0.5">Genera o regenera una imagen de portada en formato horizontal.</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={generateCoverWithAi}
+                                            disabled={isGeneratingCover || !formData.businessName || !formData.category || !formData.description}
+                                            className="px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                            {isGeneratingCover ? 'Generando...' : (coverPreview ? 'Regenerar' : 'Generar')}
+                                        </button>
+                                    </div>
+                                )}
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Logo Upload */}
@@ -674,7 +812,7 @@ const RegisterBusiness = () => {
                                     </div>
 
                                     {/* Cover Upload */}
-                                    <div className="space-y-3">
+                                    <div className={`space-y-3 ${useAiCover ? 'opacity-50 pointer-events-none select-none' : ''}`}>
                                         <label className="block text-sm font-bold text-slate-700">Cover Image</label>
                                         <div 
                                             className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-purple-400 hover:bg-purple-50/30 transition-all cursor-pointer group relative overflow-hidden" 
@@ -705,12 +843,15 @@ const RegisterBusiness = () => {
                                             )}
                                             <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverUpload} />
                                         </div>
+                                        {useAiCover && (
+                                            <p className="text-xs text-slate-500">La portada se generará con IA (subida manual deshabilitada).</p>
+                                        )}
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* STEP 4: AI Review & Approval */}
+                        {/* STEP 4: AI Enhancement */}
                         {step === 4 && aiReviewData && (
                             <div className="space-y-6 animate-pop-in">
                                 <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2 flex items-center">
@@ -749,7 +890,33 @@ const RegisterBusiness = () => {
                                         ))}
                                     </div>
                                 </div>
-                                
+                            </div>
+                        )}
+
+                        {/* STEP 5: Preview & Submit */}
+                        {step === 5 && aiReviewData && (
+                            <div className="space-y-6 animate-pop-in">
+                                <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2">Step 5: Preview</h2>
+
+                                <div className="max-w-sm">
+                                    <ListingCard
+                                        title={formData.businessName || 'Your Business'}
+                                        category={formData.category || 'Other'}
+                                        subCategory={undefined}
+                                        description={aiReviewData.optimizedDescription || formData.description || ''}
+                                        imageUrl={coverPreview || aiReviewData.suggestedImage || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80'}
+                                        logoUrl={logoPreview || undefined}
+                                        delay=""
+                                        isPrimary
+                                        onContact={() => {}}
+                                        icon={
+                                            <svg className="h-8 w-8 text-welfare-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 21h18M5 21V7a2 2 0 012-2h4v16m0-16h4a2 2 0 012 2v14M9 9h.01M9 12h.01M9 15h.01M15 9h.01M15 12h.01M15 15h.01" />
+                                            </svg>
+                                        }
+                                    />
+                                </div>
+
                                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-start gap-3">
                                     <div className="flex items-center h-5">
                                         <input
@@ -771,21 +938,6 @@ const RegisterBusiness = () => {
                                     </div>
                                 </div>
 
-                                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3 mt-4">
-                                    <div className="flex items-center h-5 text-amber-600">
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                        </svg>
-                                    </div>
-                                    <div className="text-sm">
-                                        <label className="font-bold text-amber-900 block mb-1">
-                                            Verification Required
-                                        </label>
-                                        <p className="text-amber-800">
-                                            A confirmation email will be sent to <span className="font-semibold">{formData.email}</span>. You must click the link in that email to activate your listing visible to the community.
-                                        </p>
-                                    </div>
-                                </div>
                             </div>
                         )}
 
@@ -802,7 +954,7 @@ const RegisterBusiness = () => {
 
                             {step < totalSteps ? (
                                 <button type="button" onClick={handleNext} className="px-8 py-3 rounded-xl bg-blue-600 text-white font-bold shadow-lg hover:bg-blue-700 hover:-translate-y-0.5 transition-all">
-                                    {step === 3 ? 'Optimize with AI' : 'Next Step'}
+                                    {step === 3 ? 'Optimize with AI' : step === 4 ? 'Preview' : 'Next Step'}
                                 </button>
                             ) : (
                                 <button type="submit" disabled={isSubmitting || !hasAcceptedTerms} className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${isSubmitting || !hasAcceptedTerms ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}>
@@ -815,6 +967,7 @@ const RegisterBusiness = () => {
             )}
         </section>
     </div>
+    </Layout>
   );
 };
 

@@ -3,6 +3,7 @@ import os
 import re
 import uuid
 import requests
+import base64
 from datetime import datetime
 from pathlib import Path
 
@@ -23,7 +24,10 @@ CORS(app, resources={r"/*": {"origins": allowed_origins if allowed_origins else 
 socketio = SocketIO(app, cors_allowed_origins="*")
 
 # OpenAI Config
-openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_IMAGE_MODEL = os.getenv("OPENAI_IMAGE_MODEL", "dall-e-3")
+OPENAI_IMAGE_SIZE = os.getenv("OPENAI_IMAGE_SIZE", "1792x1024")
+openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 ALLOWED_DISCOUNTS = {"5%", "10%", "15%", "20%", "25%", "30%", "40%", "50%"}
 ALLOWED_IMAGE_EXT = {"png", "jpg", "jpeg"}
@@ -37,6 +41,11 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 
 def strip_html(text: str) -> str:
     return re.sub(r"<[^>]*>", "", text or "")
+
+
+def build_public_url(filename: str) -> str:
+    host = request.host_url.rstrip("/")
+    return f"{host}/uploads/{filename}"
 
 
 def sanitize_text(text: str, max_len: int = 255) -> str:
@@ -58,10 +67,6 @@ def validate_website(url: str) -> bool:
     if not url:
         return True
     return bool(re.match(r"^https?://", url))
-
-def build_public_url(filename: str) -> str:
-    host = request.host_url.rstrip("/")
-    return f"{host}/uploads/{filename}"
 
 def mock_businesses():
     now = datetime.utcnow().isoformat()
@@ -204,6 +209,16 @@ def handle_chat(data):
 
 @app.route("/ai/optimize", methods=["POST"])
 def optimize_profile():
+    if openai_client is None:
+        data = request.get_json(silent=True) or {}
+        description = data.get("description", "")
+        category = data.get("category", "General")
+        return jsonify({
+            "optimizedDescription": description,
+            "tags": [category, "Community"],
+            "suggestedImage": None,
+        }), 200
+
     data = request.get_json(silent=True) or {}
     description = data.get("description", "")
     category = data.get("category", "General")
@@ -250,8 +265,54 @@ def optimize_profile():
         # Fallback if AI fails
         return jsonify({
             "optimizedDescription": description, 
-            "tags": [category, "Community"]
+            "tags": [category, "Community"],
+            "suggestedImage": None,
         }), 200
+
+
+@app.route("/ai/generate-cover", methods=["POST"])
+def generate_cover():
+    if openai_client is None:
+        return jsonify({"error": "OPENAI_API_KEY is not configured"}), 500
+
+    data = request.get_json(silent=True) or {}
+    business_name = sanitize_text(data.get("business_name", ""), 160)
+    category = sanitize_text(data.get("category", ""), 120)
+    description = sanitize_text(data.get("description", ""), 500)
+
+    if not business_name and not category and not description:
+        return jsonify({"error": "Provide at least one of: business_name, category, description"}), 400
+
+    prompt = (
+        "Create a clean, modern, professional cover image for a community business directory listing. "
+        "Landscape, high quality, well-lit, minimal, friendly. "
+        "No text, no logos, no watermarks. "
+        f"Business name: {business_name or 'N/A'}. "
+        f"Category: {category or 'N/A'}. "
+        f"Description: {description or 'N/A'}."
+    )
+
+    try:
+        result = openai_client.images.generate(
+            model=OPENAI_IMAGE_MODEL,
+            prompt=prompt,
+            size=OPENAI_IMAGE_SIZE,
+            response_format="b64_json",
+        )
+        image_b64 = result.data[0].b64_json
+        image_bytes = base64.b64decode(image_b64)
+    except Exception as e:
+        print(f"Cover AI Error: {e}")
+        return jsonify({"error": "Image generation failed"}), 502
+
+    safe_name = f"{uuid.uuid4()}.png"
+    try:
+        (UPLOAD_DIR / safe_name).write_bytes(image_bytes)
+    except Exception as e:
+        print(f"Cover Save Error: {e}")
+        return jsonify({"error": "Failed to save image"}), 500
+
+    return jsonify({"cover_url": build_public_url(safe_name)}), 201
 
 
 @app.route("/health", methods=["GET"])

@@ -7,6 +7,7 @@ const Header = () => {
   const menuRef = useRef(null);
   const location = useLocation();
   const isAcademy = location.pathname === '/parenting-academy';
+  const isRegister = location.pathname === '/register';
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -41,6 +42,13 @@ const Header = () => {
                Parenting Academy
              </span>
           </div>
+        ) : isRegister ? (
+          <div className="hidden md:flex items-center gap-3 animate-fade-in-up">
+             <div className="h-4 w-px bg-slate-300"></div>
+             <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-cyan-600 tracking-tight">
+               Register
+             </span>
+          </div>
         ) : (
           <div className="hidden md:flex items-center gap-3 animate-fade-in-up">
              <div className="h-4 w-px bg-slate-300"></div>
@@ -55,6 +63,17 @@ const Header = () => {
       <div className="flex-1"></div> 
 
       <div className="flex items-center">
+        <button
+          type="button"
+          aria-label="Change language"
+          className="hidden sm:inline-flex items-center gap-2 mr-3 px-3 py-2 rounded-full border border-slate-200 bg-white/70 text-slate-700 hover:text-welfare-blue hover:border-welfare-blue/40 transition-colors shadow-sm"
+          onClick={() => {}}
+        >
+          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5h12M9 3v2m1.048 14.5A18.022 18.022 0 0016.5 9.5M7 19h8m-4 0v-3m0 3H7m4 0h4M12 9.5a18.02 18.02 0 01-3.452 10" />
+          </svg>
+          <span className="text-xs font-bold tracking-wide">ES / EN</span>
+        </button>
         {!isAcademy && (
           <div className="hidden lg:flex items-center mr-4 text-xs text-slate-500">
             <span className="mr-1">Desarrollado por</span>
@@ -108,7 +127,28 @@ const Header = () => {
                     {/* Navigation Links */}
                     <div className="space-y-4">
                       <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">Menu</h3>
-                      
+
+                      <Link
+                        to="/"
+                        onClick={() => setIsMenuOpen(false)}
+                        className="group flex items-center justify-between p-3 -mx-3 rounded-xl hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="h-10 w-10 rounded-lg bg-slate-50 text-slate-700 flex items-center justify-center group-hover:bg-slate-900 group-hover:text-white transition-colors shadow-sm">
+                            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                            </svg>
+                          </div>
+                          <div>
+                            <div className="text-base font-semibold text-slate-900 group-hover:text-slate-900 transition-colors">Directory</div>
+                            <div className="text-xs text-slate-500 mt-0.5">Browse community businesses</div>
+                          </div>
+                        </div>
+                        <svg className="h-4 w-4 text-slate-300 group-hover:text-slate-900 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                      </Link>
+
                       <Link
                         to="/register"
                         onClick={() => setIsMenuOpen(false)}
@@ -121,8 +161,8 @@ const Header = () => {
                             </svg>
                           </div>
                           <div>
-                            <div className="text-base font-semibold text-slate-900 group-hover:text-welfare-blue transition-colors">Register Business</div>
-                            <div className="text-xs text-slate-500 mt-0.5">Create your listing and reach more clients</div>
+                            <div className="text-base font-semibold text-slate-900 group-hover:text-welfare-blue transition-colors">Register</div>
+                            <div className="text-xs text-slate-500 mt-0.5">Register your business</div>
                           </div>
                         </div>
                         <svg className="h-4 w-4 text-slate-300 group-hover:text-welfare-blue group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">

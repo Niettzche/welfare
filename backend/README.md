@@ -30,6 +30,11 @@ CORS
 ----
 Configura `ALLOWED_ORIGINS` en `.env` (por defecto `http://localhost:5173,http://127.0.0.1:5173`). El backend usa `flask-cors` para enviar los headers necesarios al frontend.
 
+Portada con IA (OpenAI)
+-----------------------
+Configura `OPENAI_API_KEY` (y opcionalmente `OPENAI_IMAGE_MODEL` / `OPENAI_IMAGE_SIZE`) en `.env`.
+- `POST /ai/generate-cover` genera una portada con OpenAI, la guarda en `backend/uploads/` y devuelve `cover_url`.
+
 Ejecución
 ---------
 ```bash
