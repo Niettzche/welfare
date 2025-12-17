@@ -1,7 +1,9 @@
 import React from 'react';
+import { useLanguage } from '../i18n/context.js';
 
 const ListingCard = ({ title, category, subCategory, description, imageUrl, logoUrl, delay, icon, isPrimary, onContact }) => {
   const isMasterCreators = title && title.toLowerCase().includes('master creators');
+  const { t } = useLanguage();
 
   if (isMasterCreators) {
     return (
@@ -19,7 +21,7 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
           {/* Tech Badge */}
           <div className="absolute top-4 right-4 z-20">
             <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900/80 text-cyan-400 border border-cyan-500/30 backdrop-blur-md shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-              Official Partner
+              {t('listing.officialPartner')}
             </span>
           </div>
         </div>
@@ -64,7 +66,7 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
           >
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
             <span className="relative z-10 flex items-center justify-center gap-2 group-hover/btn:scale-105 transition-transform">
-              Contact Team
+              {t('listing.contactTeam')}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
@@ -103,7 +105,7 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
           onClick={onContact}
           className={`w-full py-2.5 font-medium rounded-lg transition-all focus:ring-2 focus:ring-offset-2 focus:ring-welfare-blue ${isPrimary ? 'bg-welfare-blue text-white border border-transparent hover:bg-welfare-hover shadow-md hover:shadow-lg' : 'bg-white border border-slate-300 text-slate-700 hover:bg-welfare-blue hover:text-white hover:border-transparent'}`}
         >
-          Contact
+          {t('listing.contact')}
         </button>
       </div>
     </div>

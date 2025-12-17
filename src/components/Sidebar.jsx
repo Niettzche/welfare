@@ -1,6 +1,9 @@
 import React, { useEffect } from 'react';
+import { useLanguage } from '../i18n/context.js';
 
 const SidebarContent = ({ categories, selectedCategories, onCategoryChange, onOpenAi, onSearch, searchQuery }) => {
+  const { t } = useLanguage();
+
   return (
     <>
       {/* Search Bar */}
@@ -14,7 +17,7 @@ const SidebarContent = ({ categories, selectedCategories, onCategoryChange, onOp
           <input 
             type="text" 
             className="block w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl leading-5 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-welfare-blue/20 focus:border-welfare-blue transition-all sm:text-sm" 
-            placeholder="Search businesses..." 
+            placeholder={t('sidebar.searchPlaceholder')} 
             value={searchQuery}
             onChange={(e) => onSearch && onSearch(e.target.value)}
           />
@@ -22,19 +25,19 @@ const SidebarContent = ({ categories, selectedCategories, onCategoryChange, onOp
       </div>
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-slate-900">Filters</h2>
+        <h2 className="text-xl font-bold text-slate-900">{t('sidebar.filters')}</h2>
         <button 
             onClick={() => selectedCategories.length > 0 && onCategoryChange('RESET')}
             className={`text-xs font-medium hover:underline ${selectedCategories.length > 0 ? 'text-welfare-blue' : 'text-slate-400 cursor-default'}`}
         >
-            Reset
+            {t('sidebar.reset')}
         </button>
       </div>
 
       <div className="space-y-1">
         <details className="group py-3 border-b border-slate-100" open>
           <summary className="flex justify-between items-center font-medium cursor-pointer list-none text-slate-900 mb-4">
-            <span>Categories</span>
+            <span>{t('sidebar.categories')}</span>
             <span className="transition group-open:rotate-180 text-slate-400">
               <svg fill="none" height="20" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" viewBox="0 0 24 24" width="20"><path d="M6 9l6 6 6-6"></path></svg>
             </span>
@@ -66,7 +69,7 @@ const SidebarContent = ({ categories, selectedCategories, onCategoryChange, onOp
           <svg className="h-5 w-5 mr-2 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
           </svg>
-          <span className="font-bold tracking-wide">Ask AI Assistant</span>
+          <span className="font-bold tracking-wide">{t('sidebar.askAi')}</span>
         </button>
       </div>
     </>

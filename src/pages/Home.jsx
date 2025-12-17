@@ -8,6 +8,7 @@ import ListingDetailModal from '../components/ListingDetailModal';
 import AiAssistantModal from '../components/AiAssistantModal';
 
 import { API_BASE } from '../config';
+import { useLanguage } from '../i18n/context.js';
 
 const getCategoryIcon = (category) => {
   switch (category) {
@@ -41,6 +42,7 @@ const getCategoryIcon = (category) => {
 };
 
 function Home() {
+  const { t } = useLanguage();
   const [isLoading, setIsLoading] = useState(true);
   const [listings, setListings] = useState([]);
   const [error, setError] = useState('');
@@ -166,7 +168,7 @@ function Home() {
                   className="w-full flex items-center justify-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50"
                 >
                   <svg className="mr-2 h-5 w-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-                  Filters
+                  {t('home.filters')}
                 </button>
               </div>
             </div>
@@ -181,13 +183,13 @@ function Home() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a1 1 0 00.86 1.5h18.64a1 1 0 00.86-1.5L13.71 3.86a1 1 0 00-1.72 0z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-medium text-slate-900">No se pudo conectar al servidor</h3>
-                    <p className="mt-1">:( Vuelve a intentarlo más tarde.</p>
+                    <h3 className="text-lg font-medium text-slate-900">{t('home.serverErrorTitle')}</h3>
+                    <p className="mt-1">{t('home.serverErrorSubtitle')}</p>
                     <button 
                       onClick={() => window.location.reload()}
                       className="mt-4 inline-flex items-center px-4 py-2 rounded-lg bg-welfare-blue text-white font-semibold hover:bg-welfare-hover transition-colors"
                     >
-                      Reintentar
+                      {t('home.retry')}
                     </button>
                   </div>
                 ) : currentListings.length > 0 ? (
@@ -206,13 +208,13 @@ function Home() {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-medium text-slate-900">No businesses found</h3>
-                        <p className="mt-1">Try adjusting your filters or search criteria.</p>
+                        <h3 className="text-lg font-medium text-slate-900">{t('home.emptyTitle')}</h3>
+                        <p className="mt-1">{t('home.emptySubtitle')}</p>
                         <button 
                           onClick={() => setSelectedCategories([])}
                           className="mt-4 text-welfare-blue hover:underline font-medium"
                         >
-                          Clear all filters
+                          {t('home.clearFilters')}
                         </button>
                     </div>
                 )}
@@ -247,7 +249,7 @@ function Home() {
     />
 
     <footer className="bg-white border-t border-slate-200 py-6 px-6 lg:px-8 text-center text-sm text-slate-500">
-      Desarrollado por Master Creators · 
+      {t('home.developedBy')} Master Creators · 
       <a href="mailto:contacto@mastercreators.work" className="underline hover:text-slate-700 ml-1">contacto@mastercreators.work</a> · 
       <a href="https://mastercreators.work/" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700 ml-1">mastercreators.work</a>
     </footer>

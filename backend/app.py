@@ -322,13 +322,14 @@ def health():
 
 @app.route("/videos", methods=["GET"])
 def list_videos():
-    if SKIP_DB_WRITE: return jsonify([]), 200
+    if SKIP_DB_WRITE:
+        return jsonify([]), 200
     try:
         with get_conn() as conn:
             with conn.cursor() as cur:
-                cur.execute("SELECT id, url, title, thumbnail_url FROM videos ORDER BY created_at DESC")
+                cur.execute("SELECT id, url, created_at FROM videos ORDER BY created_at DESC")
                 rows = cur.fetchall()
-        return jsonify([{"id": r["id"], "url": r["url"], "title": r["title"], "thumbnail": r["thumbnail_url"]} for r in rows]), 200
+        return jsonify([{"id": r["id"], "url": r["url"], "created_at": r.get("created_at")} for r in rows]), 200
     except Exception:
         return jsonify([]), 200
 
@@ -337,20 +338,23 @@ def list_videos():
 def add_video():
     data = request.get_json(silent=True) or {}
     url = data.get("url", "").strip()
-    if not url: return jsonify({"error": "URL required"}), 400
+    if not url:
+        return jsonify({"error": "URL required"}), 400
     
-    meta = fetch_oembed_data(url)
-    if SKIP_DB_WRITE: return jsonify({"id": 999, "url": url, "title": meta.get("title"), "thumbnail": meta.get("thumbnail_url")}), 201
+    if SKIP_DB_WRITE:
+        return jsonify({"id": 999, "url": url, "created_at": datetime.utcnow().isoformat()}), 201
 
     with get_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO videos (url, title, thumbnail_url) VALUES (%s, %s, %s) RETURNING id",
-                (url, meta.get("title"), meta.get("thumbnail_url"))
+                "INSERT INTO videos (url) VALUES (%s) RETURNING id, created_at",
+                (url,)
             )
-            new_id = cur.fetchone()["id"]
+            row = cur.fetchone()
+            new_id = row["id"]
+            created_at = row.get("created_at")
             
-    return jsonify({"id": new_id, "url": url, "title": meta.get("title"), "thumbnail": meta.get("thumbnail_url")}), 201
+    return jsonify({"id": new_id, "url": url, "created_at": created_at}), 201
 
 
 @app.route("/businesses", methods=["GET"])

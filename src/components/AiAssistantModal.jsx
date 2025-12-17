@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 
 import { SOCKET_URL } from '../config';
+import { useLanguage } from '../i18n/context.js';
 
 const AiAssistantModal = ({ isOpen, onClose }) => {
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'ai', text: "Hello! I'm your Welfare School Community AI Assistant. I can help you find the best services for your needs. What are you looking for today?" }
+  const { t } = useLanguage();
+  const [messages, setMessages] = useState(() => [
+    { id: 1, sender: 'ai', i18nKey: 'ai.greeting' },
   ]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
+  const tRef = useRef(t);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -19,6 +22,10 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages, isTyping, isOpen]);
+
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
 
   // Socket Connection Logic
   useEffect(() => {
@@ -34,7 +41,7 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
             const aiMessage = { 
                 id: Date.now(), 
                 sender: 'ai', 
-                text: data.message || "Sorry, I didn't get that." 
+                text: data.message || tRef.current('ai.fallback'),
             };
             setMessages(prev => [...prev, aiMessage]);
             setIsTyping(false);
@@ -83,8 +90,8 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
                     </svg>
                 </div>
                 <div>
-                    <h3 className="text-white font-bold text-lg leading-tight">Welfare AI</h3>
-                    <p className="text-indigo-100 text-xs font-medium opacity-90">Powered by Live Data</p>
+                    <h3 className="text-white font-bold text-lg leading-tight">{t('ai.title')}</h3>
+                    <p className="text-indigo-100 text-xs font-medium opacity-90">{t('ai.poweredBy')}</p>
                 </div>
             </div>
             <button onClick={onClose} className="text-white/80 hover:text-white transition-colors bg-white/10 hover:bg-white/20 rounded-full p-2">
@@ -96,7 +103,7 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
 
         {/* Messages Area */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-slate-50 custom-scrollbar">
-            <div className="text-center text-xs text-slate-400 my-4">Today</div>
+            <div className="text-center text-xs text-slate-400 my-4">{t('ai.today')}</div>
             {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm text-sm sm:text-base leading-relaxed ${
@@ -104,7 +111,13 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
                         ? 'bg-indigo-600 text-white rounded-br-none' 
                         : 'bg-white text-slate-800 border border-slate-100 rounded-bl-none'
                     }`}>
-                        <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') }}></p>
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: String(msg.i18nKey ? t(msg.i18nKey) : msg.text)
+                              .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                              .replace(/\n/g, '<br/>'),
+                          }}
+                        ></p>
                     </div>
                 </div>
             ))}
@@ -128,7 +141,7 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
                         type="text"
                         value={inputText}
                         onChange={(e) => setInputText(e.target.value)}
-                        placeholder="Ask about a service..."
+                        placeholder={t('ai.inputPlaceholder')}
                         className="w-full pl-4 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all shadow-sm text-slate-700 placeholder-slate-400"
                     />
                 </div>
@@ -143,7 +156,7 @@ const AiAssistantModal = ({ isOpen, onClose }) => {
                 </button>
             </form>
             <p className="text-center text-[10px] text-slate-400 mt-2">
-                Welfare AI can make mistakes. Consider checking important information.
+                {t('ai.disclaimer')}
             </p>
         </div>
 
