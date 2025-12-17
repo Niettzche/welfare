@@ -23,6 +23,7 @@ export default {
         'scale-fade-out': 'scaleFadeOut 0.8s cubic-bezier(0.5, 0, 0, 1) forwards',
         'spin-slow-reverse': 'spin 12s linear infinite reverse',
         'spin-slower': 'spin 15s linear infinite',
+        'mc-title': 'mcTitle 3.2s ease-in-out infinite',
       },
       keyframes: {
         fadeInUp: {
@@ -40,7 +41,17 @@ export default {
         scaleFadeOut: {
           '0%': { opacity: '1', transform: 'scale(1)' },
           '100%': { opacity: '0', transform: 'scale(1.1)' },
-        }
+        },
+        mcTitle: {
+          '0%, 100%': {
+            backgroundPosition: '0% 50%',
+            filter: 'drop-shadow(0 0 0 rgba(6,182,212,0))',
+          },
+          '50%': {
+            backgroundPosition: '100% 50%',
+            filter: 'drop-shadow(0 0 14px rgba(6,182,212,0.35))',
+          },
+        },
       }
     },
   },

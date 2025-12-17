@@ -7,20 +7,20 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
 
   if (isMasterCreators) {
     return (
-      <div className={`group relative bg-slate-900 rounded-2xl overflow-hidden border border-slate-800 shadow-lg hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-up ${delay}`}>
+      <div className={`group relative bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-[0_0_30px_rgba(6,182,212,0.18)] transition-all duration-500 hover:-translate-y-2 opacity-0 animate-fade-in-up ${delay}`}>
         {/* Animated Background Effects */}
-        <div className="absolute inset-0 bg-grid-slate-800/[0.1] bg-[length:20px_20px]"></div>
-        <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-all duration-700"></div>
-        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-600/10 rounded-full blur-3xl group-hover:bg-blue-600/20 transition-all duration-700"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(148,163,184,0.22)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.22)_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+        <div className="absolute -top-24 -right-24 w-48 h-48 bg-cyan-400/20 rounded-full blur-3xl group-hover:bg-cyan-400/30 transition-all duration-700"></div>
+        <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-500/15 rounded-full blur-3xl group-hover:bg-blue-500/25 transition-all duration-700"></div>
         
         {/* Image Section */}
         <div className="h-44 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/20 to-slate-900 z-10"></div>
-          <img src={imageUrl} alt={title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/10 to-white z-10"></div>
+          <img src={imageUrl} alt={title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
           
           {/* Tech Badge */}
           <div className="absolute top-4 right-4 z-20">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-slate-900/80 text-cyan-400 border border-cyan-500/30 backdrop-blur-md shadow-[0_0_10px_rgba(6,182,212,0.3)]">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/90 text-welfare-blue border border-welfare-blue/20 backdrop-blur-md shadow-[0_0_12px_rgba(6,182,212,0.18)]">
               {t('listing.officialPartner')}
             </span>
           </div>
@@ -41,28 +41,28 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
 
         {/* Content */}
         <div className="pt-10 p-6 relative z-10">
-          <h3 className="text-2xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 group-hover:from-cyan-300 group-hover:via-blue-300 group-hover:to-purple-300 transition-all">
+          <h3 className="text-2xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-[length:200%_200%] animate-mc-title">
             {title}
           </h3>
           
           <div className="flex flex-wrap gap-2 mb-5">
-            <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-slate-800 text-cyan-300 border border-slate-700 group-hover:border-cyan-500/30 transition-colors">
+            <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-welfare-light text-welfare-blue border border-welfare-blue/10 transition-colors">
               {category}
             </span>
             {subCategory && (
-               <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-slate-800 text-slate-400 border border-slate-700">
+               <span className="inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200">
                  {subCategory}
                </span>
             )}
           </div>
           
-          <p className="text-slate-400 text-sm mb-8 leading-relaxed line-clamp-2 border-l-2 border-slate-700 pl-3 group-hover:border-cyan-500/50 transition-colors">
+          <p className="text-slate-600 text-sm mb-8 leading-relaxed line-clamp-2 border-l-2 border-cyan-200 pl-3 transition-colors">
             {description}
           </p>
           
           <button 
             onClick={onContact}
-            className="group/btn relative w-full py-3 rounded-xl font-bold text-sm uppercase tracking-wider overflow-hidden bg-slate-800 text-white shadow-lg transition-all duration-300 hover:shadow-cyan-500/25 border border-slate-700 hover:border-cyan-500/50"
+            className="group/btn relative w-full py-3 rounded-xl font-bold text-sm uppercase tracking-wider overflow-hidden bg-slate-900 text-white shadow-lg transition-all duration-300 hover:shadow-cyan-500/25 border border-slate-900 hover:border-cyan-600/40"
           >
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-cyan-600 to-blue-600 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
             <span className="relative z-10 flex items-center justify-center gap-2 group-hover/btn:scale-105 transition-transform">
