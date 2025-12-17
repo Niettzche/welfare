@@ -84,7 +84,8 @@ def mock_businesses():
             "description": "Desarrollo de software, diseño y automatización para comunidades y negocios. Soluciones a medida para tu proyecto.",
             "website": "https://mastercreators.work/",
             "logo_url": None,
-            "tags": json.dumps(["Development", "Design", "Automation"]),
+            "background_url": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80",
+            "tags": ["Development", "Design", "Automation"],
             "status": "approved",
             "created_at": now,
             "updated_at": now,
@@ -102,7 +103,46 @@ def mock_businesses():
             "description": "Productos orgánicos, frutas y verduras frescas, y artículos eco-friendly para el hogar.",
             "website": "https://greenleaf.example",
             "logo_url": None,
-            "tags": json.dumps(["Organic", "Local", "Eco-friendly"]),
+            "background_url": "https://images.unsplash.com/photo-1523419400524-fc1e0dff1f04?auto=format&fit=crop&w=1200&q=80",
+            "tags": ["Organic", "Local", "Eco-friendly"],
+            "status": "approved",
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "surname": "Familia Rivera",
+            "email": "reservas@cafeazul.example",
+            "show_email": False,
+            "phone": "+1 555 444 7788",
+            "show_phone": True,
+            "business_name": "Café Azul",
+            "category": "Food & Beverage",
+            "discount": "15%",
+            "description": "Cafetería de especialidad con panadería artesanal y opciones saludables para toda la familia.",
+            "website": "https://cafeazul.example",
+            "logo_url": None,
+            "background_url": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+            "tags": ["Coffee", "Bakery", "Family"],
+            "status": "approved",
+            "created_at": now,
+            "updated_at": now,
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "surname": "Familia García",
+            "email": "contacto@brightsmile.example",
+            "show_email": True,
+            "phone": "+1 555 888 9900",
+            "show_phone": True,
+            "business_name": "BrightSmile Dental",
+            "category": "Health & Wellness",
+            "discount": "25%",
+            "description": "Clínica dental familiar con odontopediatría y planes preventivos para niños y adultos.",
+            "website": "https://brightsmile.example",
+            "logo_url": None,
+            "background_url": "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80",
+            "tags": ["Dental", "Family", "Prevention"],
             "status": "approved",
             "created_at": now,
             "updated_at": now,
@@ -369,7 +409,7 @@ def list_businesses():
                     """
                     SELECT id, surname, email, show_email, phone, show_phone,
                            business_name, category, discount, description, website,
-                           logo_url, tags, status, created_at, updated_at
+                           logo_url, background_url, tags, status, created_at, updated_at
                     FROM businesses
                     ORDER BY created_at DESC
                     LIMIT %s
@@ -384,6 +424,14 @@ def list_businesses():
             row["email"] = None
         if not row.get("show_phone"):
             row["phone"] = None
+        tags_val = row.get("tags")
+        if isinstance(tags_val, str):
+            try:
+                row["tags"] = json.loads(tags_val)
+            except Exception:
+                row["tags"] = []
+        elif tags_val is None:
+            row["tags"] = []
 
     return jsonify(data), 200
 
@@ -408,6 +456,7 @@ def create_business():
     show_email = bool(data.get("show_email"))
     show_phone = bool(data.get("show_phone"))
     logo_url = strip_html(data.get("logo_url", "")).strip() or None
+    background_url = strip_html(data.get("background_url", "") or data.get("cover_url", "")).strip() or None
 
     tags = data.get("tags", [])
     if not isinstance(tags, list):
@@ -436,8 +485,8 @@ def create_business():
                 INSERT INTO businesses (
                     id, surname, email, show_email, phone, show_phone,
                     business_name, category, discount, description, website,
-                    logo_url, tags, status
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
+                    logo_url, background_url, tags, status
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 'pending')
                 """,
                 (
                     business_id,
@@ -452,6 +501,7 @@ def create_business():
                     description,
                     website or None,
                     logo_url,
+                    background_url,
                     tags_json,
                 ),
             )

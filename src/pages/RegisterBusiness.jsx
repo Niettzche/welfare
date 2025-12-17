@@ -259,7 +259,7 @@ const RegisterBusiness = () => {
         description: (aiReviewData?.optimizedDescription || formData.description).trim(),
         website: hasWebsite ? websiteValue : null,
         logo_url: null,
-        cover_url: null,
+        background_url: null,
         tags: aiReviewData?.tags || [],
     };
 
@@ -280,7 +280,7 @@ const RegisterBusiness = () => {
         }
 
         if (useAiCover) {
-            payload.cover_url = aiCoverUrl || coverPreview || aiReviewData?.suggestedImage || null;
+            payload.background_url = aiCoverUrl || coverPreview || aiReviewData?.suggestedImage || null;
         } else if (formData.coverFile) {
             // Reuse logo endpoint for cover for now
             const form = new FormData();
@@ -294,7 +294,7 @@ const RegisterBusiness = () => {
                 throw new Error(err.error || t('register.errors.uploadCover'));
             }
             const uploadData = await uploadRes.json();
-            payload.cover_url = uploadData.logo_url;
+            payload.background_url = uploadData.logo_url;
         }
 
         const res = await fetch(`${API_BASE}/businesses`, {
@@ -908,7 +908,7 @@ const RegisterBusiness = () => {
 	                                        category={formData.category || t('register.fields.previewFallbackCategory')}
                                         subCategory={undefined}
                                         description={aiReviewData.optimizedDescription || formData.description || ''}
-                                        imageUrl={coverPreview || aiReviewData.suggestedImage || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80'}
+                                        imageUrl={aiCoverUrl || coverPreview || aiReviewData.suggestedImage || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80'}
                                         logoUrl={logoPreview || undefined}
                                         delay=""
                                         isPrimary

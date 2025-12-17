@@ -67,7 +67,7 @@ function Home() {
           category: item.category || 'Other',
           subCategory: item.subCategory,
           description: item.description || '',
-          imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80',
+          imageUrl: item.background_url || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=1200&q=80',
           logoUrl: item.logo_url || null,
           delay: '',
           surname: item.surname || '',
@@ -75,7 +75,11 @@ function Home() {
           phone: item.show_phone ? item.phone : undefined,
           website: item.website || undefined,
           discount: item.discount,
-          tags: item.tags || [],
+          tags: Array.isArray(item.tags)
+            ? item.tags
+            : (typeof item.tags === 'string' ? (() => {
+                try { return JSON.parse(item.tags); } catch { return []; }
+              })() : []),
         }));
         setListings(normalized);
       } catch {
