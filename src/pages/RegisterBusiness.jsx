@@ -34,6 +34,8 @@ const RegisterBusiness = () => {
   const [formError, setFormError] = useState('');
   const [logoPreview, setLogoPreview] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
+  const [logoUploadWarning, setLogoUploadWarning] = useState('');
+  const [coverUploadWarning, setCoverUploadWarning] = useState('');
   const [useAiCover, setUseAiCover] = useState(true);
   const [isGeneratingCover, setIsGeneratingCover] = useState(false);
   const [aiCoverUrl, setAiCoverUrl] = useState(null);
@@ -347,11 +349,26 @@ const RegisterBusiness = () => {
     setAiReviewData(null);
     setLogoPreview(null);
     setCoverPreview(null);
+    setLogoUploadWarning('');
+    setCoverUploadWarning('');
     setFormError('');
     setUseAiCover(true);
     setAiCoverUrl(null);
     setAiCoverPrompt('');
     setHasCustomCoverPrompt(false);
+  };
+
+  const readImageMeta = (url) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const width = img.naturalWidth || img.width;
+        const height = img.naturalHeight || img.height;
+        resolve({ width, height, ratio: width && height ? width / height : null });
+      };
+      img.onerror = () => resolve({ width: null, height: null, ratio: null });
+      img.src = url;
+    });
   };
 
   const handleImageUpload = (e) => {
@@ -368,22 +385,18 @@ const RegisterBusiness = () => {
   const handleLogoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onload = () => {
-        if (img.width < 512 || img.height < 512) {
-          setFormError('El logo debe ser mínimo 512x512.');
-          return;
-        }
-        const previewUrl = URL.createObjectURL(file);
-        setLogoPreview(previewUrl);
-        setFormError('');
-        setFormData(prev => ({ ...prev, logoFile: file }));
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+    setFormError('');
+    setLogoUploadWarning('');
+    if (logoPreview && String(logoPreview).startsWith('blob:')) URL.revokeObjectURL(logoPreview);
+    const previewUrl = URL.createObjectURL(file);
+    setLogoPreview(previewUrl);
+    setFormData(prev => ({ ...prev, logoFile: file }));
+
+    readImageMeta(previewUrl).then(({ width, height, ratio }) => {
+      const isSquareish = ratio != null && ratio >= 0.85 && ratio <= 1.15;
+      const isLargeEnough = width != null && height != null ? width >= 512 && height >= 512 : true;
+      if (!isSquareish || !isLargeEnough) setLogoUploadWarning(t('register.fields.logoNonStandardWarning'));
+    });
   };
 
   const handleUseAiCoverChange = (e) => {
@@ -391,6 +404,7 @@ const RegisterBusiness = () => {
     setUseAiCover(next);
     if (next) {
       setCoverPreview(null);
+      setCoverUploadWarning('');
       setAiCoverUrl(null);
       setFormData(prev => ({ ...prev, coverFile: null }));
     }
@@ -427,22 +441,18 @@ const RegisterBusiness = () => {
   const handleCoverUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const img = new Image();
-      img.onload = () => {
-        if (img.width < 1200 || img.height < 675) {
-          setFormError('La portada debe ser al menos 1200x675 (recomendado 1792x1024).');
-          return;
-        }
-        const previewUrl = URL.createObjectURL(file);
-        setCoverPreview(previewUrl);
-        setFormError('');
-        setFormData(prev => ({ ...prev, coverFile: file }));
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+    setFormError('');
+    setCoverUploadWarning('');
+    if (coverPreview && String(coverPreview).startsWith('blob:')) URL.revokeObjectURL(coverPreview);
+    const previewUrl = URL.createObjectURL(file);
+    setCoverPreview(previewUrl);
+    setFormData(prev => ({ ...prev, coverFile: file }));
+
+    readImageMeta(previewUrl).then(({ width, height, ratio }) => {
+      const isLandscape = ratio != null ? ratio >= 1.3 : true;
+      const isLargeEnough = width != null && height != null ? width >= 1200 && height >= 675 : true;
+      if (!isLandscape || !isLargeEnough) setCoverUploadWarning(t('register.fields.coverNonStandardWarning'));
+    });
   };
 
   const handleAddTag = () => {
@@ -784,30 +794,41 @@ const RegisterBusiness = () => {
 	                            <div className="space-y-8 animate-pop-in">
 	                                <div>
 	                                    <h2 className="text-xl font-bold text-slate-800 border-b border-slate-100 pb-2">{t('register.steps.s3')}</h2>
-	                                    <p className="text-sm text-slate-600 mt-2">
-	                                        {t('register.fields.visualsSubtitle')}
-	                                    </p>
-                                        <p className="text-xs text-slate-500 mt-1">Recomendado: logo cuadrado mínimo 512x512; portada horizontal 1792x1024.</p>
-	                                </div>
+		                                    <p className="text-sm text-slate-600 mt-2">
+		                                        {t('register.fields.visualsSubtitle')}
+		                                    </p>
+	                                        <p className="text-xs text-slate-500 mt-1">{t('register.fields.recommendedNote')}</p>
+		                                </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-	                                    {/* Logo Upload */}
-	                                    <div className="space-y-3">
-	                                        <label className="block text-sm font-bold text-slate-700">{t('register.fields.logoLabel')}</label>
-                                        <div 
-                                            className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group relative overflow-hidden" 
-                                            onClick={() => logoInputRef.current?.click()}
-                                        >
-                                            {logoPreview ? (
-                                                <>
-	                                                    <img src={logoPreview} alt={t('register.fields.logoAltPreview')} className="h-full w-full object-contain p-4" />
-                                                    <button 
-                                                        type="button" 
-                                                        onClick={(e) => { e.stopPropagation(); setLogoPreview(null); setFormData(prev => ({ ...prev, logoFile: null })); }}
-                                                        className="absolute top-2 right-2 bg-red-100 text-red-600 rounded-full p-1.5 hover:bg-red-200 transition-colors shadow-sm"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                                    </button>
+		                                    {/* Logo Upload */}
+		                                    <div className="space-y-3">
+		                                        <label className="block text-sm font-bold text-slate-700">{t('register.fields.logoLabel')}</label>
+		                                        {logoUploadWarning && (
+		                                          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+		                                            {logoUploadWarning}
+		                                          </p>
+		                                        )}
+		                                        <div 
+		                                            className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer group relative overflow-hidden" 
+		                                            onClick={() => logoInputRef.current?.click()}
+		                                        >
+		                                            {logoPreview ? (
+		                                                <>
+		                                                    <img src={logoPreview} alt={t('register.fields.logoAltPreview')} className="h-full w-full object-contain p-4" />
+		                                                    <button 
+		                                                        type="button" 
+		                                                        onClick={(e) => { 
+		                                                          e.stopPropagation(); 
+		                                                          if (logoPreview && String(logoPreview).startsWith('blob:')) URL.revokeObjectURL(logoPreview);
+		                                                          setLogoPreview(null); 
+		                                                          setLogoUploadWarning('');
+		                                                          setFormData(prev => ({ ...prev, logoFile: null })); 
+		                                                        }}
+		                                                        className="absolute top-2 right-2 bg-red-100 text-red-600 rounded-full p-1.5 hover:bg-red-200 transition-colors shadow-sm"
+		                                                    >
+		                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+		                                                    </button>
                                                 </>
                                             ) : (
                                                 <div className="p-4">
@@ -824,23 +845,34 @@ const RegisterBusiness = () => {
                                         </div>
                                     </div>
 
-	                                    {/* Cover Upload */}
-	                                    <div className={`space-y-3 ${useAiCover ? 'opacity-50 pointer-events-none select-none' : ''}`}>
-	                                        <label className="block text-sm font-bold text-slate-700">{t('register.fields.coverLabel')}</label>
-                                        <div 
-                                            className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-purple-400 hover:bg-purple-50/30 transition-all cursor-pointer group relative overflow-hidden" 
-                                            onClick={() => coverInputRef.current?.click()}
-                                        >
-                                            {coverPreview ? (
-                                                <>
-	                                                    <img src={coverPreview} alt={t('register.fields.coverAltPreview')} className="h-full w-full object-cover" />
-                                                    <button 
-                                                        type="button" 
-                                                        onClick={(e) => { e.stopPropagation(); setCoverPreview(null); setFormData(prev => ({ ...prev, coverFile: null })); }}
-                                                        className="absolute top-2 right-2 bg-red-100 text-red-600 rounded-full p-1.5 hover:bg-red-200 transition-colors shadow-sm"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                                    </button>
+		                                    {/* Cover Upload */}
+		                                    <div className={`space-y-3 ${useAiCover ? 'opacity-50 pointer-events-none select-none' : ''}`}>
+		                                        <label className="block text-sm font-bold text-slate-700">{t('register.fields.coverLabel')}</label>
+		                                        {coverUploadWarning && (
+		                                          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+		                                            {coverUploadWarning}
+		                                          </p>
+		                                        )}
+		                                        <div 
+		                                            className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-purple-400 hover:bg-purple-50/30 transition-all cursor-pointer group relative overflow-hidden" 
+		                                            onClick={() => coverInputRef.current?.click()}
+		                                        >
+		                                            {coverPreview ? (
+		                                                <>
+		                                                    <img src={coverPreview} alt={t('register.fields.coverAltPreview')} className="h-full w-full object-cover" />
+		                                                    <button 
+		                                                        type="button" 
+		                                                        onClick={(e) => { 
+		                                                          e.stopPropagation(); 
+		                                                          if (coverPreview && String(coverPreview).startsWith('blob:')) URL.revokeObjectURL(coverPreview);
+		                                                          setCoverPreview(null); 
+		                                                          setCoverUploadWarning('');
+		                                                          setFormData(prev => ({ ...prev, coverFile: null })); 
+		                                                        }}
+		                                                        className="absolute top-2 right-2 bg-red-100 text-red-600 rounded-full p-1.5 hover:bg-red-200 transition-colors shadow-sm"
+		                                                    >
+		                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+		                                                    </button>
                                                 </>
                                             ) : (
                                                 <div className="p-4">

@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import logo from '../assets/logo.png';
+import { useLanguage } from '../i18n/context.js';
 
 const ListingDetailModal = ({ isOpen, onClose, listing }) => {
+  const { t } = useLanguage();
   const [view, setView] = useState('details'); // 'details' or 'contact'
   const [formData, setFormData] = useState({
     name: '',
@@ -102,11 +104,11 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
         {/* Left Column: Description */}
 	        <div className="lg:col-span-2 prose prose-lg max-w-none text-slate-600">
 	            <h3 className="text-xl font-bold mb-4 flex items-center text-slate-900">
-	                <svg className="h-6 w-6 mr-2 text-welfare-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-	                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-	                </svg>
-	                About Us
-	            </h3>
+		                <svg className="h-6 w-6 mr-2 text-welfare-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+		                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+		                </svg>
+		                {t('listingDetail.aboutUs')}
+		            </h3>
             <p className="leading-relaxed whitespace-pre-line">
                 {listing.description}
             </p>
@@ -114,24 +116,24 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 
         {/* Right Column: Contact Info & Animated Logo */}
 	        <div className="lg:col-span-1 space-y-6">
-	            {/* Contact Card */}
-	            <div className={`rounded-2xl p-6 border shadow-sm ${isMasterCreators ? 'bg-white border-cyan-100 shadow-[0_0_0_1px_rgba(6,182,212,0.10)]' : 'bg-slate-50 border-slate-100'}`}>
-	                <h4 className={`text-sm font-bold uppercase tracking-wider mb-4 border-b pb-2 ${isMasterCreators ? 'text-welfare-blue border-slate-200' : 'text-slate-400 border-slate-200'}`}>
-	                    Business Details
-	                </h4>
-	                
-	                <div className="space-y-6">
-	                    <div>
-	                        <span className={`text-xs font-semibold uppercase block mb-1 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>Family Owner</span>
-	                        <p className={`font-medium text-lg ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>
-	                            {listing.surname ? listing.surname : <span className="text-slate-400 italic font-normal text-base">Not listed</span>}
-	                        </p>
-	                    </div>
+		            {/* Contact Card */}
+		            <div className={`rounded-2xl p-6 border shadow-sm ${isMasterCreators ? 'bg-white border-cyan-100 shadow-[0_0_0_1px_rgba(6,182,212,0.10)]' : 'bg-slate-50 border-slate-100'}`}>
+		                <h4 className={`text-sm font-bold uppercase tracking-wider mb-4 border-b pb-2 ${isMasterCreators ? 'text-welfare-blue border-slate-200' : 'text-slate-400 border-slate-200'}`}>
+		                    {t('listingDetail.businessDetails')}
+		                </h4>
+		                
+		                <div className="space-y-6">
+		                    <div>
+		                        <span className={`text-xs font-semibold uppercase block mb-1 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>{t('listingDetail.familyOwner')}</span>
+		                        <p className={`font-medium text-lg ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>
+		                            {listing.surname ? listing.surname : <span className="text-slate-400 italic font-normal text-base">{t('listingDetail.notListed')}</span>}
+		                        </p>
+		                    </div>
 
-	                    <div>
-	                        <span className={`text-xs font-semibold uppercase block mb-2 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>Contact Info</span>
-	                        {(listing.email || listing.phone || listing.website) ? (
-	                            <ul className={`space-y-3 text-sm ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>
+		                    <div>
+		                        <span className={`text-xs font-semibold uppercase block mb-2 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>{t('listingDetail.contactInfo')}</span>
+		                        {(listing.email || listing.phone || listing.website) ? (
+		                            <ul className={`space-y-3 text-sm ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>
 	                                {listing.email && (
 	                                    <li className="flex items-start group">
 	                                        <div className={`p-1.5 rounded-md shadow-sm mr-3 transition-colors border ${isMasterCreators ? 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue' : 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue'}`}>
@@ -158,37 +160,37 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                                        </a>
 	                                    </li>
 	                                )}
-	                            </ul>
-                        ) : (
-                            <p className="text-slate-400 italic text-sm bg-white p-3 rounded-lg border border-slate-100 text-center">Contact details not publicly available</p>
-                        )}
-                    </div>
+		                            </ul>
+		                        ) : (
+		                            <p className="text-slate-400 italic text-sm bg-white p-3 rounded-lg border border-slate-100 text-center">{t('listingDetail.contactNotPublic')}</p>
+		                        )}
+		                    </div>
 
-	                    <div className={`pt-1 border-t ${isMasterCreators ? 'border-slate-200' : 'border-slate-200'}`}>
-	                        <span className={`text-xs font-semibold uppercase block mb-2 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>Community Discount</span>
-	                        {listing.discount ? (
-	                            <div className={`inline-flex items-center px-3 py-2 rounded-xl font-semibold text-sm shadow-sm border ${isMasterCreators ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
-	                                <svg className={`w-4 h-4 mr-2 ${isMasterCreators ? 'text-cyan-600' : 'text-green-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-	                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 14l2 2 4-4m-2-9a9 9 0 11-6.219 15.643L3 21l1.357-3.781A9 9 0 0113 3z" />
-	                                </svg>
-	                                {listing.discount} for Welfare families
-	                            </div>
-	                        ) : (
-                            <p className="text-slate-400 italic text-sm">No discount specified.</p>
-                        )}
-                    </div>
-                </div>
-            </div>
+		                    <div className={`pt-1 border-t ${isMasterCreators ? 'border-slate-200' : 'border-slate-200'}`}>
+		                        <span className={`text-xs font-semibold uppercase block mb-2 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>{t('listingDetail.communityDiscount')}</span>
+		                        {listing.discount ? (
+		                            <div className={`inline-flex items-center px-3 py-2 rounded-xl font-semibold text-sm shadow-sm border ${isMasterCreators ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
+		                                <svg className={`w-4 h-4 mr-2 ${isMasterCreators ? 'text-cyan-600' : 'text-green-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+		                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 14l2 2 4-4m-2-9a9 9 0 11-6.219 15.643L3 21l1.357-3.781A9 9 0 0113 3z" />
+		                                </svg>
+		                                {t('listingDetail.discountForFamilies', { discount: listing.discount })}
+		                            </div>
+		                        ) : (
+		                            <p className="text-slate-400 italic text-sm">{t('listingDetail.noDiscount')}</p>
+		                        )}
+		                    </div>
+		                </div>
+		            </div>
 
 	            {/* Animated Logo Branding Filler */}
-	            <div className="flex flex-col items-center justify-center p-8 opacity-50 hover:opacity-80 transition-opacity duration-700">
-	                <div className="w-24 h-24 relative animate-elegant-float">
-	                    <div className={`absolute inset-0 rounded-full filter blur-xl opacity-50 animate-pulse ${isMasterCreators ? 'bg-cyan-200' : 'bg-blue-100'}`}></div>
-	                    <img src={logo} alt="Welfare" className="relative w-full h-full object-contain" />
-	                </div>
-	                <span className={`text-xs font-bold uppercase tracking-[0.3em] mt-6 ${isMasterCreators ? 'text-slate-400' : 'text-blue-200'}`}>Welfare Community</span>
-	            </div>
-	        </div>
+		            <div className="flex flex-col items-center justify-center p-8 opacity-50 hover:opacity-80 transition-opacity duration-700">
+		                <div className="w-24 h-24 relative animate-elegant-float">
+		                    <div className={`absolute inset-0 rounded-full filter blur-xl opacity-50 animate-pulse ${isMasterCreators ? 'bg-cyan-200' : 'bg-blue-100'}`}></div>
+		                    <img src={logo} alt="Welfare" className="relative w-full h-full object-contain" />
+		                </div>
+		                <span className={`text-xs font-bold uppercase tracking-[0.3em] mt-6 ${isMasterCreators ? 'text-slate-400' : 'text-blue-200'}`}>{t('listingDetail.welfareCommunity')}</span>
+		            </div>
+		        </div>
       </div>
     </div>
   );
@@ -201,8 +203,10 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 	                </svg>
 	            </div>
-	            <h3 className={`text-xl sm:text-2xl font-bold ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>Get in Touch</h3>
-	            <p className={`text-sm sm:text-base mt-2 ${isMasterCreators ? 'text-slate-500' : 'text-slate-500'}`}>Send a direct message to <span className={`font-semibold ${isMasterCreators ? 'text-welfare-blue' : 'text-slate-700'}`}>{listing.title}</span></p>
+	            <h3 className={`text-xl sm:text-2xl font-bold ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>{t('listingDetail.getInTouch')}</h3>
+	            <p className={`text-sm sm:text-base mt-2 ${isMasterCreators ? 'text-slate-500' : 'text-slate-500'}`}>
+	              {t('listingDetail.sendDirectMessageTo', { name: listing.title })}
+	            </p>
 	        </div>
 
 	        {isSuccess ? (
@@ -211,16 +215,16 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                    <svg className="h-8 w-8 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 	                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
 	                    </svg>
-	                </div>
-	                <div className="text-center px-2 sm:px-6">
-	                    <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>Message Sent!</h3>
-	                    <p className={`text-sm sm:text-base ${isMasterCreators ? 'text-slate-600' : 'text-slate-600'}`}>Your inquiry has been successfully sent. The business owner will contact you shortly via email.</p>
-	                </div>
-	            </div>
+		                </div>
+		                <div className="text-center px-2 sm:px-6">
+		                    <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>{t('listingDetail.messageSent')}</h3>
+		                    <p className={`text-sm sm:text-base ${isMasterCreators ? 'text-slate-600' : 'text-slate-600'}`}>{t('listingDetail.messageSentBody')}</p>
+		                </div>
+		            </div>
 	        ) : (
 	            <form id="contact-form" onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-lg mx-auto">
 	                <div>
-	                    <label htmlFor="name" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>Your Name</label>
+	                    <label htmlFor="name" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>{t('listingDetail.yourName')}</label>
 	                    <input 
 	                        type="text" 
 	                        name="name" 
@@ -233,11 +237,11 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                          ? 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue' 
 	                          : 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue'
 	                        }`}
-	                        placeholder="e.g. Sarah Smith"
+	                        placeholder={t('listingDetail.namePlaceholder')}
 	                    />
 	                </div>
 	                <div>
-	                    <label htmlFor="email" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>Email Address</label>
+	                    <label htmlFor="email" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>{t('listingDetail.emailAddress')}</label>
 	                    <input 
 	                        type="email" 
 	                        name="email" 
@@ -250,11 +254,11 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                          ? 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue' 
 	                          : 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue'
 	                        }`}
-	                        placeholder="sarah@example.com"
+	                        placeholder={t('listingDetail.emailPlaceholder')}
 	                    />
 	                </div>
 	                <div>
-	                    <label htmlFor="message" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>Message</label>
+	                    <label htmlFor="message" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>{t('listingDetail.message')}</label>
 	                    <textarea 
 	                        name="message" 
 	                        id="message" 
@@ -267,7 +271,7 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                          ? 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue' 
 	                          : 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue'
 	                        }`}
-	                        placeholder="Hello, I would like to know more about..."
+	                        placeholder={t('listingDetail.messagePlaceholder')}
 	                    ></textarea>
                 </div>
             </form>
@@ -296,12 +300,12 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                  ? 'bg-white/90 text-slate-500 border-slate-100 hover:text-slate-900' 
 	                  : 'bg-white/90 text-slate-500 border-slate-100 hover:text-slate-900'
 	                }`}
-	            >
-                <span className="sr-only">Close</span>
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+		            >
+	                <span className="sr-only">{t('listingDetail.close')}</span>
+	                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+	                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+	                </svg>
+	            </button>
 
             {/* Content Container */}
             <div className="h-full flex flex-col relative">
@@ -325,9 +329,9 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' 
 	                                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
 	                                    }`}
-	                                >
-                                    {isSuccess ? 'Back to listing' : 'Back'}
-                                </button>
+		                                >
+	                                    {isSuccess ? t('listingDetail.backToListing') : t('listingDetail.back')}
+		                                </button>
                                 {!isSuccess && (
                                     <button 
                                         type="submit"
@@ -340,13 +344,13 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
                                             ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-1' 
                                             : 'bg-welfare-blue text-white shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1'
                                         }`}
-                                    >
-                                        {isSubmitting ? 'Sending...' : 'Send Message'}
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    </div>
+	                                    >
+	                                        {isSubmitting ? t('listingDetail.sending') : t('listingDetail.sendMessage')}
+	                                    </button>
+	                                )}
+		                            </div>
+		                        </div>
+		                    </div>
                  )}
             </div>
         </div>

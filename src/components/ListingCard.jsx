@@ -28,13 +28,13 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
 
         {/* Floating Logo/Icon */}
         <div className="absolute top-32 left-6 p-1 z-20">
-          <div className="relative h-16 w-16 rounded-full bg-white flex items-center justify-center border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)] group-hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] group-hover:border-cyan-400/50 transition-all duration-300 overflow-hidden">
-             {logoUrl ? (
-               <img src={logoUrl} alt={`${title} logo`} className="h-full w-full object-cover rounded-full" />
-             ) : (
-               <div className="text-cyan-500 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
-                 {icon}
-               </div>
+	          <div className="relative h-16 w-16 rounded-full bg-white flex items-center justify-center border border-cyan-500/30 shadow-[0_0_20px_rgba(6,182,212,0.2)] group-hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] group-hover:border-cyan-400/50 transition-all duration-300 overflow-hidden">
+	             {logoUrl ? (
+	               <img src={logoUrl} alt={`${title} logo`} className="h-full w-full object-contain rounded-full p-2" />
+	             ) : (
+	               <div className="text-cyan-500 drop-shadow-[0_0_5px_rgba(34,211,238,0.5)]">
+	                 {icon}
+	               </div>
              )}
           </div>
         </div>
@@ -84,13 +84,13 @@ const ListingCard = ({ title, category, subCategory, description, imageUrl, logo
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/10 to-transparent"></div>
       </div>
       <div className="absolute top-28 left-5 p-1 bg-white rounded-full shadow-md z-10">
-        <div className="h-14 w-14 rounded-full bg-white flex items-center justify-center border border-slate-100 overflow-hidden">
-           {logoUrl ? (
-             <img src={logoUrl} alt={`${title} logo`} className="h-full w-full object-cover rounded-full" />
-           ) : (
-             icon
-           )}
-        </div>
+	        <div className="h-14 w-14 rounded-full bg-white flex items-center justify-center border border-slate-100 overflow-hidden">
+	           {logoUrl ? (
+	             <img src={logoUrl} alt={`${title} logo`} className="h-full w-full object-contain rounded-full p-2" />
+	           ) : (
+	             icon
+	           )}
+	        </div>
       </div>
       <div className="pt-8 p-5">
         <h3 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-welfare-blue transition-colors">{title}</h3>
