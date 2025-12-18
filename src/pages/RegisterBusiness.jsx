@@ -36,7 +36,9 @@ const RegisterBusiness = () => {
   const [coverPreview, setCoverPreview] = useState(null);
   const [logoUploadWarning, setLogoUploadWarning] = useState('');
   const [coverUploadWarning, setCoverUploadWarning] = useState('');
-  const [useAiCover, setUseAiCover] = useState(true);
+  const [useAiCover, setUseAiCover] = useState(false);
+  const [useColorCover, setUseColorCover] = useState(false);
+  const [coverColor, setCoverColor] = useState('#2563eb');
   const [isGeneratingCover, setIsGeneratingCover] = useState(false);
   const [aiCoverUrl, setAiCoverUrl] = useState(null);
   const [aiCoverPrompt, setAiCoverPrompt] = useState('');
@@ -289,7 +291,9 @@ const RegisterBusiness = () => {
             payload.logo_url = uploadData.logo_url;
         }
 
-        if (useAiCover) {
+        if (useColorCover) {
+            payload.background_url = coverPreview || null;
+        } else if (useAiCover) {
             payload.background_url = aiCoverUrl || coverPreview || aiReviewData?.suggestedImage || null;
         } else if (formData.coverFile) {
             // Reuse logo endpoint for cover for now
@@ -352,10 +356,18 @@ const RegisterBusiness = () => {
     setLogoUploadWarning('');
     setCoverUploadWarning('');
     setFormError('');
-    setUseAiCover(true);
+    setUseAiCover(false);
+    setUseColorCover(false);
+    setCoverColor('#2563eb');
     setAiCoverUrl(null);
     setAiCoverPrompt('');
     setHasCustomCoverPrompt(false);
+  };
+
+  const coverDataUrlFromColor = (hexColor) => {
+    const safeColor = String(hexColor || '#2563eb');
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1792" height="1024" viewBox="0 0 1792 1024"><rect width="100%" height="100%" fill="${safeColor}"/></svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
   };
 
   const readImageMeta = (url) => {
@@ -369,6 +381,29 @@ const RegisterBusiness = () => {
       img.onerror = () => resolve({ width: null, height: null, ratio: null });
       img.src = url;
     });
+  };
+
+  const handleUseColorCoverChange = (e) => {
+    const next = e.target.checked;
+    setUseColorCover(next);
+    setCoverUploadWarning('');
+    setFormData((prev) => ({ ...prev, coverFile: null }));
+    setAiCoverUrl(null);
+
+    if (next) {
+      setUseAiCover(false);
+      if (coverPreview && String(coverPreview).startsWith('blob:')) URL.revokeObjectURL(coverPreview);
+      setCoverPreview(coverDataUrlFromColor(coverColor));
+    } else {
+      if (coverPreview && String(coverPreview).startsWith('data:image/svg+xml')) setCoverPreview(null);
+    }
+  };
+
+  const handleCoverColorChange = (nextColor) => {
+    setCoverColor(nextColor);
+    if (!useColorCover) return;
+    if (coverPreview && String(coverPreview).startsWith('blob:')) URL.revokeObjectURL(coverPreview);
+    setCoverPreview(coverDataUrlFromColor(nextColor));
   };
 
   const handleImageUpload = (e) => {
@@ -405,6 +440,7 @@ const RegisterBusiness = () => {
     if (next) {
       setCoverPreview(null);
       setCoverUploadWarning('');
+      setUseColorCover(false);
       setAiCoverUrl(null);
       setFormData(prev => ({ ...prev, coverFile: null }));
     }
@@ -446,6 +482,7 @@ const RegisterBusiness = () => {
     if (coverPreview && String(coverPreview).startsWith('blob:')) URL.revokeObjectURL(coverPreview);
     const previewUrl = URL.createObjectURL(file);
     setCoverPreview(previewUrl);
+    setUseColorCover(false);
     setFormData(prev => ({ ...prev, coverFile: file }));
 
     readImageMeta(previewUrl).then(({ width, height, ratio }) => {
@@ -846,7 +883,7 @@ const RegisterBusiness = () => {
                                     </div>
 
 		                                    {/* Cover Upload */}
-		                                    <div className={`space-y-3 ${useAiCover ? 'opacity-50 pointer-events-none select-none' : ''}`}>
+		                                    <div className={`space-y-3 ${(useAiCover || useColorCover) ? 'opacity-50 select-none' : ''}`}>
 		                                        <label className="block text-sm font-bold text-slate-700">{t('register.fields.coverLabel')}</label>
 		                                        {coverUploadWarning && (
 		                                          <p className="text-xs text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
@@ -854,8 +891,13 @@ const RegisterBusiness = () => {
 		                                          </p>
 		                                        )}
 		                                        <div 
-		                                            className="border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center hover:border-purple-400 hover:bg-purple-50/30 transition-all cursor-pointer group relative overflow-hidden" 
-		                                            onClick={() => coverInputRef.current?.click()}
+		                                            className={`border-2 border-dashed border-slate-200 rounded-2xl h-48 flex flex-col items-center justify-center text-center transition-all group relative overflow-hidden ${
+		                                              (useAiCover || useColorCover) ? 'cursor-not-allowed' : 'hover:border-purple-400 hover:bg-purple-50/30 cursor-pointer'
+		                                            }`} 
+		                                            onClick={() => {
+		                                              if (useAiCover || useColorCover) return;
+		                                              coverInputRef.current?.click();
+		                                            }}
 		                                        >
 		                                            {coverPreview ? (
 		                                                <>
@@ -867,6 +909,7 @@ const RegisterBusiness = () => {
 		                                                          if (coverPreview && String(coverPreview).startsWith('blob:')) URL.revokeObjectURL(coverPreview);
 		                                                          setCoverPreview(null); 
 		                                                          setCoverUploadWarning('');
+		                                                          setUseColorCover(false);
 		                                                          setFormData(prev => ({ ...prev, coverFile: null })); 
 		                                                        }}
 		                                                        className="absolute top-2 right-2 bg-red-100 text-red-600 rounded-full p-1.5 hover:bg-red-200 transition-colors shadow-sm"
@@ -888,17 +931,71 @@ const RegisterBusiness = () => {
 	                                            )}
                                             <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={handleCoverUpload} />
                                         </div>
-	                                        {useAiCover && (
-	                                            <p className="text-xs text-slate-500">{t('register.fields.coverAiDisabledHint')}</p>
-	                                        )}
+		                                        {useAiCover && (
+		                                            <p className="text-xs text-slate-500">{t('register.fields.coverAiDisabledHint')}</p>
+		                                        )}
+		                                    </div>
+		                                </div>
+
+	                                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+	                                    <div>
+	                                        <p className="text-sm font-semibold text-slate-900">{t('register.fields.colorCoverToggleTitle')}</p>
+	                                        <p className="text-xs text-slate-500 mt-0.5">{t('register.fields.colorCoverToggleDesc')}</p>
 	                                    </div>
+	                                    <label className="inline-flex items-center cursor-pointer select-none">
+	                                        <input
+	                                            type="checkbox"
+	                                            checked={useColorCover}
+	                                            onChange={handleUseColorCoverChange}
+	                                            className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+	                                        />
+	                                    </label>
 	                                </div>
 
-                                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
-                                    <div>
-	                                        <p className="text-sm font-semibold text-slate-900">{t('register.fields.aiCoverToggleTitle')}</p>
-	                                        <p className="text-xs text-slate-500 mt-0.5">{t('register.fields.aiCoverToggleDesc')}</p>
-                                    </div>
+	                                {useColorCover && (
+	                                  <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+	                                    <div className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
+	                                      {t('register.fields.colorCoverPick')}
+	                                    </div>
+	                                    <div className="flex flex-wrap gap-2">
+	                                      {[
+	                                        '#0ea5e9',
+	                                        '#2563eb',
+	                                        '#7c3aed',
+	                                        '#db2777',
+	                                        '#ef4444',
+	                                        '#f59e0b',
+	                                        '#10b981',
+	                                        '#111827',
+	                                      ].map((c) => (
+	                                        <button
+	                                          key={c}
+	                                          type="button"
+	                                          onClick={() => handleCoverColorChange(c)}
+	                                          className={`h-8 w-8 rounded-full border transition-transform active:scale-95 ${coverColor === c ? 'border-slate-900 ring-2 ring-slate-900/20' : 'border-slate-200'}`}
+	                                          style={{ backgroundColor: c }}
+	                                          aria-label={c}
+	                                        />
+	                                      ))}
+	                                    </div>
+
+	                                    <div className="flex items-center justify-between">
+	                                      <div className="text-xs text-slate-500">{t('register.fields.colorCoverCustom')}</div>
+	                                      <input
+	                                        type="color"
+	                                        value={coverColor}
+	                                        onChange={(e) => handleCoverColorChange(e.target.value)}
+	                                        className="h-10 w-14 rounded-md border border-slate-200 bg-white"
+	                                      />
+	                                    </div>
+	                                  </div>
+	                                )}
+
+	                                <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl p-4">
+	                                    <div>
+		                                        <p className="text-sm font-semibold text-slate-900">{t('register.fields.aiCoverToggleTitle')}</p>
+		                                        <p className="text-xs text-slate-500 mt-0.5">{t('register.fields.aiCoverToggleDesc')}</p>
+	                                    </div>
                                     <label className="inline-flex items-center cursor-pointer select-none">
                                         <input
                                             type="checkbox"
