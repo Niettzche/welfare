@@ -484,6 +484,115 @@ def serve_upload(filename):
     return send_from_directory(UPLOAD_DIR, filename)
 
 
+# --- ADMIN ROUTES ---
+
+@app.route("/admin/businesses", methods=["GET"])
+def admin_list_businesses():
+    """Returns all businesses with full details (no privacy filtering)."""
+    if SKIP_DB_WRITE:
+        return jsonify(mock_businesses()), 200
+
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT * FROM businesses
+                ORDER BY created_at DESC
+                """
+            )
+            data = cur.fetchall()
+
+    # Parse tags
+    for row in data:
+        tags_val = row.get("tags")
+        if isinstance(tags_val, str):
+            try:
+                row["tags"] = json.loads(tags_val)
+            except Exception:
+                row["tags"] = []
+        elif tags_val is None:
+            row["tags"] = []
+
+    return jsonify(data), 200
+
+
+@app.route("/admin/businesses/<business_id>", methods=["PUT"])
+def admin_update_business(business_id):
+    """Updates a business listing."""
+    data = request.get_json(silent=True) or {}
+    
+    # Fields allowed to be updated
+    updatable_fields = [
+        "surname", "email", "show_email", "phone", "show_phone",
+        "business_name", "category", "discount", "description", 
+        "website", "status", "logo_url", "background_url"
+    ]
+    
+    # Build update query dynamically
+    updates = []
+    values = []
+    
+    for field in updatable_fields:
+        if field in data:
+            updates.append(f"{field} = %s")
+            val = data[field]
+            # specific cleaning/validations could go here
+            if field == "email":
+                val = strip_html(val).replace(" ", "").lower()
+            elif field in ["surname", "business_name", "category", "description"]:
+                val = sanitize_text(val, 500 if field == "description" else 160)
+            elif field == "website":
+                val = strip_html(val).strip()
+            
+            values.append(val)
+
+    # Handle tags separately if present
+    if "tags" in data:
+        tags = data["tags"]
+        if isinstance(tags, list):
+            cleaned_tags = [sanitize_text(str(tag), 40) for tag in tags if sanitize_text(str(tag), 40)]
+            updates.append("tags = %s")
+            values.append(json.dumps(cleaned_tags))
+
+    if not updates:
+        return jsonify({"message": "No fields to update"}), 200
+
+    values.append(business_id)
+    
+    if SKIP_DB_WRITE:
+        return jsonify({"message": "Update skipped (dev mode)"}), 200
+
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                sql = f"UPDATE businesses SET {', '.join(updates)}, updated_at = NOW() WHERE id = %s"
+                cur.execute(sql, tuple(values))
+                if cur.rowcount == 0:
+                    return jsonify({"error": "Business not found"}), 404
+        return jsonify({"message": "Business updated successfully"}), 200
+    except Exception as e:
+        print(f"Update Error: {e}")
+        return jsonify({"error": "Failed to update business"}), 500
+
+
+@app.route("/admin/businesses/<business_id>", methods=["DELETE"])
+def admin_delete_business(business_id):
+    """Deletes a business listing."""
+    if SKIP_DB_WRITE:
+        return jsonify({"message": "Delete skipped (dev mode)"}), 200
+
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM businesses WHERE id = %s", (business_id,))
+                if cur.rowcount == 0:
+                    return jsonify({"error": "Business not found"}), 404
+        return jsonify({"message": "Business deleted successfully"}), 200
+    except Exception as e:
+        print(f"Delete Error: {e}")
+        return jsonify({"error": "Failed to delete business"}), 500
+
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", "5001"))
     is_debug = os.getenv("FLASK_DEBUG", "False").lower() == "true"

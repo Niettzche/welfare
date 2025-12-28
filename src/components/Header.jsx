@@ -9,6 +9,7 @@ const Header = () => {
   const location = useLocation();
   const isAcademy = location.pathname === '/parenting-academy';
   const isRegister = location.pathname === '/register';
+  const isAdmin = location.pathname === '/admin';
   const { language, toggleLanguage, t } = useLanguage();
 
   useEffect(() => {
@@ -51,6 +52,13 @@ const Header = () => {
              <div className="h-4 w-px bg-slate-300"></div>
              <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-cyan-600 tracking-tight">
                {t('header.register')}
+             </span>
+          </div>
+        ) : isAdmin ? (
+          <div className="hidden md:flex items-center gap-3 animate-fade-in-up">
+             <div className="h-4 w-px bg-slate-300"></div>
+             <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-900 tracking-tight">
+               {t('header.administration')}
              </span>
           </div>
         ) : (

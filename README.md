@@ -1,16 +1,72 @@
-# React + Vite
+# Welfare
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Directorio de negocios y recursos para la comunidad Welfare School. Incluye registro de negocios con IA, panel de administracion y catalogo de videos para Parenting Academy.
 
-Currently, two official plugins are available:
+## Funcionalidades
+- Directorio con filtros, detalle y contacto por negocio.
+- Registro guiado con optimizacion de descripcion y tags por IA.
+- Generacion de portadas con IA y carga de logos/imagenes.
+- Administracion de negocios (aprobar, editar, eliminar).
+- Asistente IA en tiempo real via Socket.IO.
+- Academia con listado paginado de videos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Stack
+- Frontend: React 19, Vite, Tailwind, React Router.
+- Backend: Flask, Flask-SocketIO, PyMySQL, OpenAI SDK.
+- DB: MariaDB.
+- Infra: Nginx + systemd (service para Gunicorn).
 
-## React Compiler
+## Inicio rapido (local)
+Frontend:
+```bash
+npm install
+npm run dev
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Backend:
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
+flask --app app run --port 5001
+```
 
-## Expanding the ESLint configuration
+Base de datos:
+- Ejecuta `db/schema.sql` y `db/videos_schema.sql` en MariaDB.
+- Para modo sin escritura en DB, usa `SKIP_DB_WRITE=1` en `backend/.env`.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Variables de entorno
+Frontend:
+- `VITE_API_URL` (default `http://localhost:5001`).
+- `VITE_SOCKET_URL` (default `http://localhost:5001`).
+
+Backend (ver `backend/.env.example`):
+- `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`.
+- `SKIP_DB_WRITE`.
+- `ALLOWED_ORIGINS`.
+- `OPENAI_API_KEY`, `OPENAI_IMAGE_MODEL`, `OPENAI_IMAGE_SIZE`.
+
+## Documentacion
+- `docs/ARCHITECTURE.md`
+- `docs/FRONTEND.md`
+- `docs/BACKEND.md`
+- `docs/API.md`
+- `docs/DATABASE.md`
+- `docs/DEPLOYMENT.md`
+- `backend/README.md`
+
+## Estructura del repo
+- `src/`: frontend.
+- `backend/`: API Flask, Socket.IO, uploads.
+- `db/`: schemas SQL.
+- `public/`: assets estaticos.
+- `dist/`: build del frontend.
+- `nginx.conf`: proxy y estaticos.
+
+## Scripts
+- `npm run dev`: servidor de desarrollo.
+- `npm run build`: build de produccion.
+- `npm run preview`: preview del build.
+- `npm run lint`: lint con ESLint.
