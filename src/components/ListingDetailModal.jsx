@@ -59,18 +59,8 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
     }, 1500);
   };
 
-  const isMasterCreators = listing && listing.title && listing.title.toLowerCase().includes('master creators');
-  
   const DetailView = () => (
     <div className="space-y-10 animate-fade-in-up relative">
-      {/* Tech Background Elements for Master Creators */}
-      {isMasterCreators && (
-        <div className="absolute inset-0 overflow-hidden pointer-events-none -z-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600/5 rounded-full blur-3xl"></div>
-        </div>
-      )}
-
       {/* Header Image */}
 	      <div className="relative h-64 sm:h-80 lg:h-[420px] overflow-hidden rounded-3xl shadow-xl group">
 	        <img 
@@ -78,21 +68,18 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	            alt={listing.title} 
 	            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
 	        />
-	        <div className={`absolute inset-0 bg-gradient-to-t ${isMasterCreators ? 'from-white via-white/70 to-transparent' : 'from-slate-900/80 via-slate-900/20 to-transparent'}`}></div>
-	        {isMasterCreators && (
-	          <div className="absolute inset-0 opacity-60 bg-[linear-gradient(to_right,rgba(148,163,184,0.22)_1px,transparent_1px),linear-gradient(to_bottom,rgba(148,163,184,0.22)_1px,transparent_1px)] bg-[size:22px_22px]"></div>
-	        )}
+	        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent"></div>
 	        
-	        <div className={`absolute bottom-0 left-0 p-6 sm:p-8 w-full z-10 ${isMasterCreators ? 'text-slate-900' : 'text-white'}`}>
-	            <h2 className={`text-3xl sm:text-4xl font-bold mb-3 ${isMasterCreators ? 'text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-[length:200%_200%] animate-mc-title' : ''}`}>
+	        <div className="absolute bottom-0 left-0 p-6 sm:p-8 w-full z-10 text-white">
+	            <h2 className="text-3xl sm:text-4xl font-bold mb-3">
 	              {listing.title}
 	            </h2>
 	            <div className="flex flex-wrap gap-2">
-	                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium backdrop-blur-md border ${isMasterCreators ? 'bg-white/70 text-welfare-blue border-welfare-blue/20 shadow-sm' : 'bg-white/20 text-white border-white/20'}`}>
+	                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium backdrop-blur-md border bg-white/20 text-white border-white/20">
 	                    {listing.category}
 	                </span>
 	                {listing.subCategory && (
-	                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium backdrop-blur-md border ${isMasterCreators ? 'bg-white/70 text-slate-700 border-slate-200 shadow-sm' : 'bg-white/20 text-white border-white/20'}`}>
+	                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium backdrop-blur-md border bg-white/20 text-white border-white/20">
 	                        {listing.subCategory}
 	                    </span>
 	                )}
@@ -117,26 +104,26 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
         {/* Right Column: Contact Info & Animated Logo */}
 	        <div className="lg:col-span-1 space-y-6">
 		            {/* Contact Card */}
-		            <div className={`rounded-2xl p-6 border shadow-sm ${isMasterCreators ? 'bg-white border-cyan-100 shadow-[0_0_0_1px_rgba(6,182,212,0.10)]' : 'bg-slate-50 border-slate-100'}`}>
-		                <h4 className={`text-sm font-bold uppercase tracking-wider mb-4 border-b pb-2 ${isMasterCreators ? 'text-welfare-blue border-slate-200' : 'text-slate-400 border-slate-200'}`}>
+		            <div className="rounded-2xl p-6 border shadow-sm bg-slate-50 border-slate-100">
+		                <h4 className="text-sm font-bold uppercase tracking-wider mb-4 border-b pb-2 text-slate-400 border-slate-200">
 		                    {t('listingDetail.businessDetails')}
 		                </h4>
 		                
 		                <div className="space-y-6">
 		                    <div>
-		                        <span className={`text-xs font-semibold uppercase block mb-1 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>{t('listingDetail.familyOwner')}</span>
-		                        <p className={`font-medium text-lg ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>
+		                        <span className="text-xs font-semibold uppercase block mb-1 text-welfare-blue">{t('listingDetail.familyOwner')}</span>
+		                        <p className="font-medium text-lg text-slate-900">
 		                            {listing.surname ? listing.surname : <span className="text-slate-400 italic font-normal text-base">{t('listingDetail.notListed')}</span>}
 		                        </p>
 		                    </div>
 
 		                    <div>
-		                        <span className={`text-xs font-semibold uppercase block mb-2 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>{t('listingDetail.contactInfo')}</span>
+		                        <span className="text-xs font-semibold uppercase block mb-2 text-welfare-blue">{t('listingDetail.contactInfo')}</span>
 		                        {(listing.email || listing.phone || listing.website) ? (
-		                            <ul className={`space-y-3 text-sm ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>
+		                            <ul className="space-y-3 text-sm text-slate-700">
 	                                {listing.email && (
 	                                    <li className="flex items-start group">
-	                                        <div className={`p-1.5 rounded-md shadow-sm mr-3 transition-colors border ${isMasterCreators ? 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue' : 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue'}`}>
+	                                        <div className="p-1.5 rounded-md shadow-sm mr-3 transition-colors border bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue">
 	                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
 	                                        </div>
 	                                        <span className="mt-1 break-all">{listing.email}</span>
@@ -144,7 +131,7 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                                )}
 	                                {listing.phone && (
 	                                    <li className="flex items-start group">
-	                                        <div className={`p-1.5 rounded-md shadow-sm mr-3 transition-colors border ${isMasterCreators ? 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue' : 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue'}`}>
+	                                        <div className="p-1.5 rounded-md shadow-sm mr-3 transition-colors border bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue">
 	                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 12.284 3 6V5z" /></svg>
 	                                        </div>
 	                                        <span className="mt-1">{listing.phone}</span>
@@ -152,10 +139,10 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	                                )}
 	                                {listing.website && (
 	                                    <li className="flex items-start group">
-	                                        <div className={`p-1.5 rounded-md shadow-sm mr-3 transition-colors border ${isMasterCreators ? 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue' : 'bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue'}`}>
+	                                        <div className="p-1.5 rounded-md shadow-sm mr-3 transition-colors border bg-white border-slate-100 text-slate-400 group-hover:text-welfare-blue">
 	                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
 	                                        </div>
-	                                        <a href={listing.website} target="_blank" rel="noopener noreferrer" className={`mt-1 hover:underline transition-colors ${isMasterCreators ? 'text-welfare-blue hover:text-blue-700' : 'text-welfare-blue hover:text-blue-700'}`}>
+	                                        <a href={listing.website} target="_blank" rel="noopener noreferrer" className="mt-1 hover:underline transition-colors text-welfare-blue hover:text-blue-700">
 	                                            Visit Website
 	                                        </a>
 	                                    </li>
@@ -166,11 +153,11 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 		                        )}
 		                    </div>
 
-		                    <div className={`pt-1 border-t ${isMasterCreators ? 'border-slate-200' : 'border-slate-200'}`}>
-		                        <span className={`text-xs font-semibold uppercase block mb-2 ${isMasterCreators ? 'text-welfare-blue' : 'text-welfare-blue'}`}>{t('listingDetail.communityDiscount')}</span>
+		                    <div className="pt-1 border-t border-slate-200">
+		                        <span className="text-xs font-semibold uppercase block mb-2 text-welfare-blue">{t('listingDetail.communityDiscount')}</span>
 		                        {listing.discount ? (
-		                            <div className={`inline-flex items-center px-3 py-2 rounded-xl font-semibold text-sm shadow-sm border ${isMasterCreators ? 'bg-cyan-50 text-cyan-700 border-cyan-100' : 'bg-green-50 text-green-700 border-green-100'}`}>
-		                                <svg className={`w-4 h-4 mr-2 ${isMasterCreators ? 'text-cyan-600' : 'text-green-500'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+		                            <div className="inline-flex items-center px-3 py-2 rounded-xl font-semibold text-sm shadow-sm border bg-green-50 text-green-700 border-green-100">
+		                                <svg className="w-4 h-4 mr-2 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 		                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 14l2 2 4-4m-2-9a9 9 0 11-6.219 15.643L3 21l1.357-3.781A9 9 0 0113 3z" />
 		                                </svg>
 		                                {t('listingDetail.discountForFamilies', { discount: listing.discount })}
@@ -182,13 +169,13 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 		                </div>
 		            </div>
 
-	            {/* Animated Logo Branding Filler */}
+		            {/* Animated Logo Branding Filler */}
 		            <div className="flex flex-col items-center justify-center p-8 opacity-50 hover:opacity-80 transition-opacity duration-700">
 		                <div className="w-24 h-24 relative animate-elegant-float">
-		                    <div className={`absolute inset-0 rounded-full filter blur-xl opacity-50 animate-pulse ${isMasterCreators ? 'bg-cyan-200' : 'bg-blue-100'}`}></div>
+		                    <div className="absolute inset-0 rounded-full filter blur-xl opacity-50 animate-pulse bg-blue-100"></div>
 		                    <img src={logo} alt="Welfare" className="relative w-full h-full object-contain" />
 		                </div>
-		                <span className={`text-xs font-bold uppercase tracking-[0.3em] mt-6 ${isMasterCreators ? 'text-slate-400' : 'text-blue-200'}`}>{t('listingDetail.welfareCommunity')}</span>
+		                <span className="text-xs font-bold uppercase tracking-[0.3em] mt-6 text-blue-200">{t('listingDetail.welfareCommunity')}</span>
 		            </div>
 		        </div>
       </div>
@@ -198,33 +185,33 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 	  const ContactView = () => (
 	     <div className="space-y-4 sm:space-y-6 animate-fade-in-up pt-6 sm:pt-10 max-w-3xl mx-auto w-full">
 	        <div className="text-center mb-6 sm:mb-8">
-	            <div className={`inline-flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-full mb-4 ${isMasterCreators ? 'bg-blue-50 text-welfare-blue border border-blue-100 shadow-sm' : 'bg-blue-50 text-welfare-blue'}`}>
+	            <div className="inline-flex items-center justify-center h-12 w-12 sm:h-16 sm:w-16 rounded-full mb-4 bg-blue-50 text-welfare-blue">
 	                <svg className="h-6 w-6 sm:h-8 sm:w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 	                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
 	                </svg>
 	            </div>
-	            <h3 className={`text-xl sm:text-2xl font-bold ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>{t('listingDetail.getInTouch')}</h3>
-	            <p className={`text-sm sm:text-base mt-2 ${isMasterCreators ? 'text-slate-500' : 'text-slate-500'}`}>
+	            <h3 className="text-xl sm:text-2xl font-bold text-slate-900">{t('listingDetail.getInTouch')}</h3>
+	            <p className="text-sm sm:text-base mt-2 text-slate-500">
 	              {t('listingDetail.sendDirectMessageTo', { name: listing.title })}
 	            </p>
 	        </div>
 
 	        {isSuccess ? (
-	             <div className={`flex flex-col items-center justify-center py-8 sm:py-12 space-y-4 sm:space-y-6 rounded-2xl border p-4 ${isMasterCreators ? 'bg-green-50 border-green-100' : 'bg-green-50 border-green-100'}`}>
-	                <div className={`h-16 w-16 sm:h-20 sm:w-20 rounded-full flex items-center justify-center shadow-sm ${isMasterCreators ? 'bg-green-100 text-green-600' : 'bg-green-100 text-green-600'}`}>
+	             <div className="flex flex-col items-center justify-center py-8 sm:py-12 space-y-4 sm:space-y-6 rounded-2xl border p-4 bg-green-50 border-green-100">
+	                <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-full flex items-center justify-center shadow-sm bg-green-100 text-green-600">
 	                    <svg className="h-8 w-8 sm:h-10 sm:w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 	                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
 	                    </svg>
 		                </div>
 		                <div className="text-center px-2 sm:px-6">
-		                    <h3 className={`text-xl sm:text-2xl font-bold mb-2 ${isMasterCreators ? 'text-slate-900' : 'text-slate-900'}`}>{t('listingDetail.messageSent')}</h3>
-		                    <p className={`text-sm sm:text-base ${isMasterCreators ? 'text-slate-600' : 'text-slate-600'}`}>{t('listingDetail.messageSentBody')}</p>
+		                    <h3 className="text-xl sm:text-2xl font-bold mb-2 text-slate-900">{t('listingDetail.messageSent')}</h3>
+		                    <p className="text-sm sm:text-base text-slate-600">{t('listingDetail.messageSentBody')}</p>
 		                </div>
 		            </div>
 	        ) : (
 	            <form id="contact-form" onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 max-w-lg mx-auto">
 	                <div>
-	                    <label htmlFor="name" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>{t('listingDetail.yourName')}</label>
+	                    <label htmlFor="name" className="block text-sm font-semibold mb-1 text-slate-700">{t('listingDetail.yourName')}</label>
 	                    <input 
 	                        type="text" 
 	                        name="name" 
@@ -232,16 +219,12 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
                         required
 	                        value={formData.name}
 	                        onChange={handleChange}
-	                        className={`block w-full rounded-xl border shadow-sm py-2.5 sm:py-3 px-4 transition-colors focus:ring-2 ${
-	                          isMasterCreators 
-	                          ? 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue' 
-	                          : 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue'
-	                        }`}
+	                        className="block w-full rounded-xl border shadow-sm py-2.5 sm:py-3 px-4 transition-colors focus:ring-2 bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue"
 	                        placeholder={t('listingDetail.namePlaceholder')}
 	                    />
 	                </div>
 	                <div>
-	                    <label htmlFor="email" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>{t('listingDetail.emailAddress')}</label>
+	                    <label htmlFor="email" className="block text-sm font-semibold mb-1 text-slate-700">{t('listingDetail.emailAddress')}</label>
 	                    <input 
 	                        type="email" 
 	                        name="email" 
@@ -249,16 +232,12 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
                         required
 	                        value={formData.email}
 	                        onChange={handleChange}
-	                        className={`block w-full rounded-xl border shadow-sm py-2.5 sm:py-3 px-4 transition-colors focus:ring-2 ${
-	                          isMasterCreators 
-	                          ? 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue' 
-	                          : 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue'
-	                        }`}
+	                        className="block w-full rounded-xl border shadow-sm py-2.5 sm:py-3 px-4 transition-colors focus:ring-2 bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue"
 	                        placeholder={t('listingDetail.emailPlaceholder')}
 	                    />
 	                </div>
 	                <div>
-	                    <label htmlFor="message" className={`block text-sm font-semibold mb-1 ${isMasterCreators ? 'text-slate-700' : 'text-slate-700'}`}>{t('listingDetail.message')}</label>
+	                    <label htmlFor="message" className="block text-sm font-semibold mb-1 text-slate-700">{t('listingDetail.message')}</label>
 	                    <textarea 
 	                        name="message" 
 	                        id="message" 
@@ -266,11 +245,7 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
                         required
 	                        value={formData.message}
 	                        onChange={handleChange}
-	                        className={`block w-full rounded-xl border shadow-sm py-2.5 sm:py-3 px-4 transition-colors resize-none focus:ring-2 ${
-	                          isMasterCreators 
-	                          ? 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue' 
-	                          : 'bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue'
-	                        }`}
+	                        className="block w-full rounded-xl border shadow-sm py-2.5 sm:py-3 px-4 transition-colors resize-none focus:ring-2 bg-slate-50 border-slate-300 focus:bg-white focus:border-welfare-blue focus:ring-welfare-blue"
 	                        placeholder={t('listingDetail.messagePlaceholder')}
 	                    ></textarea>
                 </div>
@@ -291,15 +266,11 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 
 	        {/* Slide-over Panel */}
 	        <div 
-	            className={`fixed inset-y-0 right-0 z-[110] w-full h-full max-w-2xl shadow-2xl overflow-hidden transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) ${isOpen ? 'translate-x-0' : 'translate-x-full'} ${isMasterCreators ? 'bg-white border-l border-cyan-100' : 'bg-white'}`}
+	            className={`fixed inset-y-0 right-0 z-[110] w-full h-full max-w-2xl shadow-2xl overflow-hidden transform transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) ${isOpen ? 'translate-x-0' : 'translate-x-full'} bg-white`}
 	        >
 	            <button 
 	                onClick={onClose}
-	                className={`absolute top-4 right-4 sm:top-5 sm:right-5 z-30 p-2 rounded-full shadow-sm border hover:scale-105 transition-all backdrop-blur ${
-	                  isMasterCreators 
-	                  ? 'bg-white/90 text-slate-500 border-slate-100 hover:text-slate-900' 
-	                  : 'bg-white/90 text-slate-500 border-slate-100 hover:text-slate-900'
-	                }`}
+	                className="absolute top-4 right-4 sm:top-5 sm:right-5 z-30 p-2 rounded-full shadow-sm border hover:scale-105 transition-all backdrop-blur bg-white/90 text-slate-500 border-slate-100 hover:text-slate-900"
 		            >
 	                <span className="sr-only">{t('listingDetail.close')}</span>
 	                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -318,17 +289,13 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
 
 	                 {/* Sticky Footer */}
 	                 {view === 'contact' && (
-	                    <div className={`absolute bottom-0 left-0 w-full backdrop-blur-md border-t p-4 sm:p-6 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] ${isMasterCreators ? 'bg-white/95 border-slate-100' : 'bg-white/95 border-slate-100'}`}>
+	                    <div className="absolute bottom-0 left-0 w-full backdrop-blur-md border-t p-4 sm:p-6 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)] bg-white/95 border-slate-100">
 	                        <div className="w-full px-5 sm:px-8">
 	                            <div className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-4">
 	                                <button 
 	                                    type="button" 
 	                                    onClick={() => (isSuccess ? onClose() : setView('details'))}
-	                                    className={`flex-1 font-bold py-3 sm:py-4 rounded-xl transition-all active:scale-95 text-base sm:text-lg ${
-	                                      isMasterCreators 
-	                                      ? 'bg-slate-100 text-slate-700 hover:bg-slate-200' 
-	                                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-	                                    }`}
+	                                    className="flex-1 font-bold py-3 sm:py-4 rounded-xl transition-all active:scale-95 text-base sm:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200"
 		                                >
 	                                    {isSuccess ? t('listingDetail.backToListing') : t('listingDetail.back')}
 		                                </button>
@@ -340,9 +307,7 @@ const ListingDetailModal = ({ isOpen, onClose, listing }) => {
                                         className={`flex-1 font-bold py-3 sm:py-4 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center text-base sm:text-lg ${
                                           isSubmitting 
                                           ? 'opacity-50 cursor-not-allowed' 
-                                          : isMasterCreators 
-                                            ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-1' 
-                                            : 'bg-welfare-blue text-white shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1'
+                                          : 'bg-welfare-blue text-white shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1'
                                         }`}
 	                                    >
 	                                        {isSubmitting ? t('listingDetail.sending') : t('listingDetail.sendMessage')}

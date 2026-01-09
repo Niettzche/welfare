@@ -72,6 +72,21 @@ const RegisterBusiness = () => {
     setAiCoverPrompt(basePrompt);
   }, [formData.businessName, formData.category, formData.description, hasCustomCoverPrompt]);
 
+  const fetchWithTimeout = async (url, options = {}, timeoutMs = 30000, timeoutMessage) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } catch (err) {
+      if (err?.name === 'AbortError') {
+        throw new Error(timeoutMessage || t('register.errors.registerFailed'));
+      }
+      throw err;
+    } finally {
+      clearTimeout(timeoutId);
+    }
+  };
+
   const totalSteps = 5;
 
   const handleChange = (e) => {
@@ -119,6 +134,10 @@ const RegisterBusiness = () => {
     const isValidPhone = (phone) => /^[\d+\-()\s]{7,20}$/.test(phone);
 
     if (step === 1) {
+        if (!formData.surname.trim()) {
+            setFormError(t('register.errors.familyNameRequired'));
+            return;
+        }
         if (!isValidEmail(formData.email)) {
             setFormError(t('register.errors.validEmail'));
             return;
@@ -130,9 +149,14 @@ const RegisterBusiness = () => {
     }
 
     if (step === 2) {
-        const missing = [];
-        if (!formData.discount) missing.push('descuento');
-        if (!formData.description) missing.push('descripción');
+        if (!formData.businessName.trim() || !formData.category || !formData.discount) {
+            setFormError(t('register.errors.completeBusinessDetails'));
+            return;
+        }
+        if (!formData.description.trim()) {
+            setFormError(t('register.errors.provideDescription'));
+            return;
+        }
 
         const site = formData.website.trim();
         const hasWebsite = site && site !== 'https://' && site !== 'http://';
@@ -140,10 +164,11 @@ const RegisterBusiness = () => {
             setFormError(t('register.errors.validWebsite'));
             return;
         }
-        if (missing.length) {
-            setFormError(`Falta completar: ${missing.join(', ')}`);
-            return;
-        }
+    }
+
+    if (step === 4 && !aiReviewData) {
+        setFormError(t('register.errors.aiFirst'));
+        return;
     }
 
     setFormError('');
@@ -153,7 +178,7 @@ const RegisterBusiness = () => {
       setIsGeneratingAi(true);
       
       try {
-          const res = await fetch(`${API_BASE}/ai/optimize`, {
+          const res = await fetchWithTimeout(`${API_BASE}/ai/optimize`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -161,7 +186,7 @@ const RegisterBusiness = () => {
                   category: formData.category,
                   business_name: formData.businessName
               })
-          });
+          }, 30000, t('register.errors.aiUnavailable'));
 
           if (!res.ok) throw new Error(t('register.errors.aiUnavailable'));
           
@@ -279,10 +304,10 @@ const RegisterBusiness = () => {
         if (formData.logoFile) {
             const form = new FormData();
             form.append('logo', formData.logoFile);
-            const uploadRes = await fetch(`${API_BASE}/upload-logo`, {
+            const uploadRes = await fetchWithTimeout(`${API_BASE}/upload-logo`, {
                 method: 'POST',
                 body: form,
-            });
+            }, 30000, t('register.errors.uploadLogo'));
             if (!uploadRes.ok) {
                 const err = await uploadRes.json().catch(() => ({}));
                 throw new Error(err.error || t('register.errors.uploadLogo'));
@@ -299,10 +324,10 @@ const RegisterBusiness = () => {
             // Reuse logo endpoint for cover for now
             const form = new FormData();
             form.append('logo', formData.coverFile);
-            const uploadRes = await fetch(`${API_BASE}/upload-logo`, {
+            const uploadRes = await fetchWithTimeout(`${API_BASE}/upload-logo`, {
                 method: 'POST',
                 body: form,
-            });
+            }, 30000, t('register.errors.uploadCover'));
             if (!uploadRes.ok) {
                 const err = await uploadRes.json().catch(() => ({}));
                 throw new Error(err.error || t('register.errors.uploadCover'));
@@ -311,11 +336,11 @@ const RegisterBusiness = () => {
             payload.background_url = uploadData.logo_url;
         }
 
-        const res = await fetch(`${API_BASE}/businesses`, {
+        const res = await fetchWithTimeout(`${API_BASE}/businesses`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
-        });
+        }, 30000, t('register.errors.registerFailed'));
 
         if (!res.ok) {
             const err = await res.json().catch(() => ({}));
@@ -450,7 +475,7 @@ const RegisterBusiness = () => {
     setFormError('');
     setIsGeneratingCover(true);
     try {
-      const res = await fetch(`${API_BASE}/ai/generate-cover`, {
+      const res = await fetchWithTimeout(`${API_BASE}/ai/generate-cover`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -459,7 +484,7 @@ const RegisterBusiness = () => {
           category: formData.category,
           description: formData.description,
         })
-      });
+      }, 30000, t('register.errors.coverAi'));
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || t('register.errors.coverAi'));
@@ -524,6 +549,14 @@ const RegisterBusiness = () => {
     "Non-Profit",
     "Other"
   ];
+
+  const isStep2Complete = Boolean(
+    formData.businessName.trim() &&
+    formData.category &&
+    formData.discount &&
+    formData.description.trim()
+  );
+  const isNextDisabled = isGeneratingCover || (step === 2 && !isStep2Complete);
 
   if (isGeneratingAi) {
      return (
@@ -1147,9 +1180,9 @@ const RegisterBusiness = () => {
                                 <button
                                     type="button"
                                     onClick={handleNext}
-                                    disabled={isGeneratingCover}
+                                    disabled={isNextDisabled}
                                     className={`px-8 py-3 rounded-xl font-bold shadow-lg transition-all ${
-                                        isGeneratingCover
+                                        isNextDisabled
                                             ? 'bg-slate-300 text-slate-600 cursor-not-allowed'
                                             : 'bg-blue-600 text-white hover:bg-blue-700 hover:-translate-y-0.5'
                                     }`}
