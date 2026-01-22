@@ -43,6 +43,8 @@ const RegisterBusiness = () => {
   const [aiCoverUrl, setAiCoverUrl] = useState(null);
   const [aiCoverPrompt, setAiCoverPrompt] = useState('');
   const [hasCustomCoverPrompt, setHasCustomCoverPrompt] = useState(false);
+  const [showCoverNotice, setShowCoverNotice] = useState(false);
+  const [hasShownCoverNotice, setHasShownCoverNotice] = useState(false);
   
   // Tag adding state
   const [isAddingTag, setIsAddingTag] = useState(false);
@@ -71,6 +73,17 @@ const RegisterBusiness = () => {
     const basePrompt = `Cover image for "${formData.businessName || 'Community Business'}" - category: ${formData.category || 'General'}. ${formData.description || 'Clean, welcoming and professional tone.'}`;
     setAiCoverPrompt(basePrompt);
   }, [formData.businessName, formData.category, formData.description, hasCustomCoverPrompt]);
+
+  useEffect(() => {
+    if (step !== 3) {
+      setShowCoverNotice(false);
+      return;
+    }
+    if (!hasShownCoverNotice) {
+      setShowCoverNotice(true);
+      setHasShownCoverNotice(true);
+    }
+  }, [step, hasShownCoverNotice]);
 
   const fetchWithTimeout = async (url, options = {}, timeoutMs = 30000, timeoutMessage) => {
     const controller = new AbortController();
@@ -601,6 +614,51 @@ const RegisterBusiness = () => {
 
   return (
     <Layout>
+    {showCoverNotice && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+        <button
+          type="button"
+          className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm"
+          aria-label={t('register.fields.coverNoticeClose')}
+          onClick={() => setShowCoverNotice(false)}
+        />
+        <div
+          className="relative z-10 w-full max-w-md rounded-2xl border border-slate-100 bg-white p-6 shadow-2xl"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="cover-notice-title"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-600">
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v3m0 4h.01M10.29 3.86L1.82 18a1.5 1.5 0 001.29 2.25h17.78a1.5 1.5 0 001.29-2.25L13.71 3.86a1.5 1.5 0 00-2.42 0z" />
+              </svg>
+            </div>
+            <div>
+              <h3 id="cover-notice-title" className="text-lg font-bold text-slate-900">
+                {t('register.fields.coverNoticeTitle')}
+              </h3>
+              <p className="mt-2 text-sm text-slate-700">
+                {t('register.fields.coverNoticeBody')}
+              </p>
+              <p className="mt-2 text-xs text-slate-500">
+                {t('register.fields.coverNoticeDetail')}
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 flex justify-end">
+            <button
+              type="button"
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 transition-colors"
+              onClick={() => setShowCoverNotice(false)}
+            >
+              {t('register.fields.coverNoticeAction')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <div className="min-h-full bg-blue-50 flex flex-col items-center justify-center py-12 relative overflow-hidden font-sans w-full">
         
         {/* Dynamic & Interactive Background */}
