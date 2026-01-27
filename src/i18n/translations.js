@@ -123,6 +123,8 @@ export const translations = {
         descriptionPlaceholder: 'Describe tus servicios y lo que ofreces a la comunidad...',
         visualsSubtitle: 'Sube imágenes para que tu ficha sea atractiva.',
         recommendedNote: 'Recomendado: logo cuadrado mínimo 512x512; portada horizontal 1792x1024.',
+        uploadNotice:
+          'Si aparece un error al subir, prueba comprimir la imagen. Límite: PNG/JPEG hasta 5 MB.',
         aiCoverToggleTitle: 'Generar portada con IA',
         aiCoverToggleDesc: 'Usaremos una imagen sugerida automáticamente como portada.',
         aiCoverTitle: 'Portada (IA)',
@@ -342,6 +344,8 @@ export const translations = {
         descriptionPlaceholder: 'Describe your services and what you offer to the community...',
         visualsSubtitle: 'Upload visuals to make your listing attractive.',
         recommendedNote: 'Recommended: square logo at least 512x512; landscape cover 1792x1024.',
+        uploadNotice:
+          'If an upload error appears, try compressing the image. Limit: PNG/JPEG up to 5 MB.',
         aiCoverToggleTitle: 'Generate cover with AI',
         aiCoverToggleDesc: "We'll use an automatically suggested image as your cover.",
         aiCoverTitle: 'Cover (AI)',

@@ -241,7 +241,7 @@ const RegisterBusiness = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e?.preventDefault) e.preventDefault();
     const isValidEmail = (email) => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email);
     const isValidPhone = (phone) => /^[\d+\-()\s]{7,20}$/.test(phone);
     const websiteValue = formData.website.trim();
@@ -737,7 +737,7 @@ const RegisterBusiness = () => {
                     <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600"></div>
                     
                     <form 
-                        onSubmit={handleSubmit} 
+                        onSubmit={(e) => e.preventDefault()} 
                         className="space-y-6 mt-2"
                         onKeyDown={(e) => {
                             if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
@@ -926,6 +926,12 @@ const RegisterBusiness = () => {
 		                                        {t('register.fields.visualsSubtitle')}
 		                                    </p>
 	                                        <p className="text-xs text-slate-500 mt-1">{t('register.fields.recommendedNote')}</p>
+                                          <div className="mt-3 inline-flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                                            <svg className="mt-0.5 h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v3m0 4h.01M10.29 3.86L1.82 18a1.5 1.5 0 001.29 2.25h17.78a1.5 1.5 0 001.29-2.25L13.71 3.86a1.5 1.5 0 00-2.42 0z" />
+                                            </svg>
+                                            <span>{t('register.fields.uploadNotice')}</span>
+                                          </div>
 		                                </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1248,7 +1254,7 @@ const RegisterBusiness = () => {
                                     {step === 3 ? 'Siguiente paso' : step === 4 ? t('register.actions.preview') : t('register.actions.nextStep')}
                                 </button>
                             ) : (
-                                <button type="submit" disabled={isSubmitting || !hasAcceptedTerms} className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${isSubmitting || !hasAcceptedTerms ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}>
+                                <button type="button" onClick={handleSubmit} disabled={isSubmitting || !hasAcceptedTerms} className={`px-8 py-3 rounded-xl text-white font-bold shadow-lg transition-all ${isSubmitting || !hasAcceptedTerms ? 'bg-slate-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600'}`}>
                                     {isSubmitting ? t('register.actions.submitting') : t('register.actions.submit')}
                                 </button>
                             )}
